@@ -2,16 +2,19 @@
 <html>
 
 <head>
-  <title>Kirjautuminen</title>
+  <title>Log in</title>
 </head>
 
 <body>
   {% if session.username %}
   <p>
-    Olet kirjautunut nimellä {{ session.username }}
+    You are logged in as {{ session.username }}
   </p>
   <p>
-    <a href="/logout">Kirjaudu ulos</a>
+    <a href="/logout">Log out</a>
+  </p>
+  <p>
+  <a href="/new_item">New Review</a>
   </p>
   {% else %}
   <form action="/login" method="post">

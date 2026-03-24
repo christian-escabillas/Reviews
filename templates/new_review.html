@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Review</title>
+</head>
+
+<body>
+  <h1>New Review</h1>
+  <form action="/create_item" method="post">
+
+    <p>
+      Title: <br />
+      <input type="text" name="title" />
+    </p>
+    <p>
+      Thoughts: <br />
+      <textarea name="thoughts" rows="10" cols="40"></textarea>
+    </p>
+    <p>
+      Rating: <br />
+     <input type="text" name="Rating" size="10"/>
+    </p>
+      Item: <br>
+      <select name="item_id">
+        {% for item in items %}
+         <option value="{{ item.id }}">{{ item.title }}</option>
+        {% endfor %}
+      </select><br><br>
+
+    <input type="submit" value="Submit review" />
+
+  </form>
+</body>
+
+</html>

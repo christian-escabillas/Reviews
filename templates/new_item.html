@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Review</title>
+</head>
+
+<body>
+  <h1>New Review</h1>
+  <form action="/create_item" method="post">
+
+    <p>
+      Title: <br />
+      <input type="text" name="title" />
+    </p>
+    <p>
+      What are you reviewing?: <br />
+      <select name="item_type">
+        <option value="movie">Movie</option>
+        <option value="series">Series</option>
+        <option value="game">Game</option>
+        <option value="song">Song</option>
+      </select><br><br>
+      
+    <input type="submit" value="Submit review" />
+
+  </form>
+</body>
+
+</html>

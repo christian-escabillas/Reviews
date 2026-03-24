@@ -2,35 +2,33 @@
 <html>
 
 <head>
-  <title>Kirjautuminen</title>
+  <title>Reviews</title>
 </head>
 
 <body>
+  <h1>Review</h1>
+
   {% if session.username %}
   <p>
-    Olet kirjautunut nimellä {{ session.username }}
+    You are logged in as {{ session.username }}
   </p>
   <p>
-    <a href="/logout">Kirjaudu ulos</a>
+  <a href="/new_review">New Review</a>
   </p>
+  <p>
+  <a href="/logout">Log out</a>
+  </p>
+
   {% else %}
-  <form action="/login" method="post">
-    <p>
-      Tunnus: <br />
-      <input type="text" name="username" />
-    </p>
-    <p>
-      Salasana: <br />
-      <input type="password" name="password" />
-    </p>
-    <input type="submit" value="Kirjaudu" />
-  </form>
-  {% endif %}
+
   <p> 
-    <a href="/login"> Kirjaudu sisään </a>
-    <a href="/register"> Luo tunnus </a>
-    <a href="/logout"> Kirjaudu ulos </a>
+  <a href="/login">Log in</a>
+  
+  <a href="/register">Sign up</a>
+
   </p>
+
+  {% endif %}
 </body>
 
 </html>
