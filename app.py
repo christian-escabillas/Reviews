@@ -28,6 +28,10 @@ def index():
 def new_item():
     return render_template("new_item.html")
 
+@app.route("/choose_category")
+def choose_category():
+    return render_template("choose_category.html")
+
 @app.route("/create_item", methods=["POST"])
 def create_item():
     title = request.form["title"]
@@ -77,7 +81,7 @@ def create():
     except sqlite3.IntegrityError:
         return "VIRHE: tunnus on jo varattu"
 
-    return "Tunnus luotui"
+    return redirect("/")
 
 @app.route("/login", methods=["GET", "POST"])
 
