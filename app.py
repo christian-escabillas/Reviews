@@ -2,6 +2,7 @@ import sqlite3
 from flask import Flask
 from flask import redirect, render_template, request, session, abort
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 import config
 import db
 
@@ -15,12 +16,13 @@ def index():
                 r.title,
                 u.username,
                 COUNT(c.id) AS comment_count,
-                COALESCE(MAX(c.created_at), 'No comments yet') AS last_comment
+                COALESCE(MAX(c.created_at), 'No comments yet') AS last_comment,
+                r.created_at
         FROM review r
         JOIN users u ON r.user_id = u.id
         LEFT JOIN comments c ON r.id = c.review_id
         GROUP BY r.id, r.title, u.username
-        ORDER BY last_comment DESC""")
+        ORDER BY r.created_at DESC""")
     
     return render_template("index.html", review=result)
 
@@ -53,8 +55,12 @@ def create_review():
     thoughts = request.form["thoughts"]
     rating = request.form["rating"]
     item_title = request.form["item_title"].strip()
-    item_type = request.form["item_type"]
+    item_type = request.form["item_type"].strip().lower()
     user_id = session["user_id"]
+
+    if item_type == "music":
+        item_type = "song"
+    created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     item = db.query(
         "SELECT id FROM item WHERE LOWER(title) = LOWER(?) AND item_type = ?",
@@ -68,14 +74,17 @@ def create_review():
             "INSERT INTO item (title, item_type) VALUES (?, ?)",
             [item_title, item_type]
         )
-        item_id = db.query("SELECT last_insert_rowid() AS id")[0]["id"]
+        item_id = db.query(
+            "SELECT id FROM item WHERE LOWER(title) = LOWER(?) AND item_type = ?",
+            [item_title, item_type]
+        )[0]["id"]
 
     db.execute(
         """
-        INSERT INTO review (title, thoughts, rating, user_id, item_id)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO review (title, thoughts, rating, user_id, item_id, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
         """,
-        [title, thoughts, rating, user_id, item_id]
+        [title, thoughts, rating, user_id, item_id, created_at]
     )
 
 

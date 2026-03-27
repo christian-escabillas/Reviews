@@ -30,9 +30,8 @@
   {% for review in review %}
   <p>
     <a href="/review/{{ review.id }}">{{ review.title }}</a><br>
-    created by {{ review.username }}<br>
-    {{ review.comment_count }} comments,
-    newest {{ review.last_comment }}
+    Review by {{ review.username }} ({{ review.created_at }})<br>
+    {{ review.comment_count }} comments
   </p>
   <hr>
   {% endfor %}
