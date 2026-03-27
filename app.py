@@ -117,7 +117,7 @@ def create():
     password2 = request.form["password2"]
     if password1 != password2:
         return "VIRHE: salasanat eivät ole samat"
-    password_hash = generate_password_hash(password1)
+    password_hash = generate_password_hash(password1, method="pbkdf2:sha256")
 
     try:
         sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)"
