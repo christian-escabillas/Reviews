@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Find Item</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    label { display: block; margin: 8px 0 4px; }
+    input[type="text"], select { width: 320px; padding: 6px; }
+    button { margin-top: 12px; padding: 8px 14px; }
+    .hint { color: #555; font-size: 0.9em; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <h1>Find Items / Reviews</h1>
+
+  <form action="/search" method="get">
+    <label for="item_type">Category</label>
+    <select id="item_type" name="item_type" required>
+      <option value="">-- choose --</option>
+      <option value="movie">Movie</option>
+      <option value="series">Series</option>
+      <option value="game">Game</option>
+      <option value="song">Song</option>
+    </select>
+
+    <label for="query">Search text</label>
+    <input id="query" name="query" type="text" placeholder="e.g., Under Pressure or Masterpiece" />
+
+    <div class="hint">
+      This finds items by their title and also matches review titles. Items with no reviews are included.
+    </div>
+
+    <button type="submit">Search</button>
+  </form>
+
+  <p><a href="/">Back to home</a></p>
+</body>
+</html>

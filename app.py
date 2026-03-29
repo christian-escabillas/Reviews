@@ -26,9 +26,107 @@ def index():
     
     return render_template("index.html", review=result)
 
+@app.route("/search")
+def search():
+    item_type = request.args.get("item_type")  
+    query = (request.args.get("query") or "").strip()
+
+    if not item_type:
+        return render_template("search_results.html", results=[], item_type=item_type, query=query)
+
+    sql = """
+        SELECT
+            i.id   AS item_id,
+            i.title AS item_title,
+            i.item_type,
+            r.id   AS review_id,
+            r.title AS review_title,
+            r.rating
+        FROM item i
+        LEFT JOIN review r ON r.item_id = i.id
+        WHERE i.item_type = ?
+          AND (
+            LOWER(TRIM(i.title)) LIKE LOWER(?)
+            OR LOWER(COALESCE(TRIM(r.title), '')) LIKE LOWER(?)
+          )
+        ORDER BY i.title, r.id
+    """
+    params = [item_type, f"%{query}%", f"%{query}%"]
+    results = db.query(sql, params)
+
+    return render_template("search_results.html", results=results, item_type=item_type, query=query)
+
+
+@app.route("/find_item")
+def find_item():
+    return render_template("find_item.html")
+
 @app.route("/new_item")
 def new_item():
     return render_template("new_item.html")
+
+@app.route("/debug")
+def debug_page():
+    # Pull basic tables
+    users = db.query("SELECT id, username FROM users ORDER BY id")
+    items = db.query("SELECT id, title, item_type FROM item ORDER BY id")
+    reviews = db.query("""
+        SELECT r.id, r.title, r.thoughts, r.rating, r.user_id, r.item_id
+        FROM review r
+        ORDER BY r.id
+    """)
+    comments = db.query("""
+        SELECT c.id, c.review_id, c.user_id, c.created_at, c.comment
+        FROM comments c
+        ORDER BY c.id
+    """)
+
+    # Optional: try created_at on review if it exists (won't crash if missing)
+    try:
+        reviews_with_created = db.query("""
+            SELECT r.id, r.title, r.thoughts, r.rating, r.user_id, r.item_id, r.created_at
+            FROM review r
+            ORDER BY r.id
+        """)
+        if reviews_with_created:
+            reviews = reviews_with_created
+    except Exception:
+        pass
+
+    # Optional: include per-type details if IDs align with item.id
+    songs = []
+    movies = []
+    series = []
+    games = []
+    try:
+        songs = db.query("SELECT id, song_title, singer FROM song ORDER BY id")
+    except Exception:
+        pass
+    try:
+        movies = db.query("SELECT id, movie_title, release_year FROM movie ORDER BY id")
+    except Exception:
+        pass
+    try:
+        series = db.query("SELECT id, series_title, release_year FROM series ORDER BY id")
+    except Exception:
+        pass
+    try:
+        games = db.query("SELECT id, game_name, release_year FROM game ORDER BY id")
+    except Exception:
+        pass
+
+    return render_template(
+        "debug.html",
+        users=users,
+        items=items,
+        reviews=reviews,
+        comments=comments,
+        songs=songs,
+        movies=movies,
+        series=series,
+        games=games,
+    )
+
 
 @app.route("/choose_category")
 def choose_category():
