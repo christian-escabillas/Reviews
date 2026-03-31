@@ -6,12 +6,24 @@
 <body>
   <h1>{{ review.title }}</h1>
 
-  <p>Created by {{ review.username }}</p>
+  <p>
+    Item: {{ review.item_title }}
+  </p>
 
-  <p>Rating: {{ review.rating }}</p>
+  <p>
+    Created by {{ review.username }}
+  </p>
 
-  <p>{{ review.thoughts }}</p>
+  <p>
+    Rating: {{ review.rating }}
+  </p>
 
-  <p><a href="/">Back to front page</a></p>
+  <p>
+    {{ review.thoughts }}
+  </p>
+
+  <p>
+    <a href="/">Back to front page</a>
+  </p>
 </body>
 </html>

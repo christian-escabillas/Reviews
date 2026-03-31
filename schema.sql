@@ -16,7 +16,8 @@ CREATE TABLE review (
     thoughts TEXT,
     rating INTEGER,
     user_id INTEGER REFERENCES users(id),
-    item_id INTEGER REFERENCES item(id)
+    item_id INTEGER REFERENCES item(id),
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE movie (

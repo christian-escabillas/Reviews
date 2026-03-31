@@ -127,7 +127,7 @@ def create_review():
 
 @app.route("/review/<int:review_id>")
 def show_review(review_id):
-    sql = """
+    review = db.query("""
         SELECT r.id,
             r.title,
             r.thoughts,
@@ -140,13 +140,7 @@ def show_review(review_id):
         JOIN users u ON r.user_id = u.id
         JOIN item i ON r.item_id = i.id
         WHERE r.id = ?
-    """
-    reviews = db.query(sql, [review_id])
-
-    if len(reviews) == 0:
-        abort(404)
-
-    review = reviews[0]
+    """, [review_id])[0]
 
     return render_template("review.html", review=review)
 
