@@ -44,9 +44,11 @@ def search():
             i.item_type,
             r.id AS review_id,
             r.title AS review_title,
-            r.rating
+            r.rating,
+            u.username AS review_username
         FROM item i
         LEFT JOIN review r ON r.item_id = i.id
+        LEFT JOIN users u ON r.user_id = u.id
         WHERE i.item_type = ?
           AND (
             LOWER(TRIM(i.title)) LIKE LOWER(?)
