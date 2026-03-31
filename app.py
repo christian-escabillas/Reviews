@@ -13,12 +13,15 @@ app.secret_key = config.secret_key
 def index():
     result = db.query("""
         SELECT r.id, 
-                r.title,
+                r.title as review_title,
+                i.item_type,
+                i.title as item_title,
                 u.username,
                 COUNT(c.id) AS comment_count,
                 COALESCE(MAX(c.created_at), 'No comments yet') AS last_comment,
                 r.created_at
         FROM review r
+        JOIN item i on r.item_id = i.id
         JOIN users u ON r.user_id = u.id
         LEFT JOIN comments c ON r.id = c.review_id
         GROUP BY r.id, r.title, u.username
@@ -34,12 +37,12 @@ def search():
     if not item_type:
         return render_template("search_results.html", results=[], item_type=item_type, query=query)
 
-    sql = """
+    sql ="""
         SELECT
-            i.id   AS item_id,
+            i.id AS item_id,
             i.title AS item_title,
             i.item_type,
-            r.id   AS review_id,
+            r.id AS review_id,
             r.title AS review_title,
             r.rating
         FROM item i
