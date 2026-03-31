@@ -12,3 +12,26 @@ Sovelluksen perusvaatimukset ovat:
 - Käyttäjä pystyy valitsemaan tietokohteelle yhden tai useamman luokittelun. Mahdolliset luokat ovat tietokannassa.
 - Sovelluksessa on pääasiallisen tietokohteen lisäksi toissijainen tietokohde, joka täydentää pääasiallista tietokohdetta.
 - Käyttäjä pystyy lisäämään toissijaisia tietokohteita omiin ja muiden käyttäjien tietokohteisiin liittyen.
+
+## Sovelluksen asennus
+
+```bash
+pip install flask
+```
+
+Luo tietokanna taulut ja lisää alkutiedot:
+
+```bash
+sqlite3 database.db < schema.sql
+```
+
+Avaa selaimessa:
+http://127.0.0.1:5000/
+
+## Rakenne
+- 'app.py' - pääsovellus
+- 'templates/' HTML-tiedostot
+- schema.sql - tietokannan rakenne
+
+
+
