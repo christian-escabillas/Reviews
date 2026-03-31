@@ -23,9 +23,7 @@
       Item: {{ row.item_title }}<br>
       Type: {{ row.item_type }}<br>
       <a href="/review/{{ row.review_id }}">Open review</a>
-      {% else #}
-      No review
-      {% endif %}
+
     </p>
     <hr>
     {% endfor %}
