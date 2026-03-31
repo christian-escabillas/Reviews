@@ -65,69 +65,6 @@ def find_item():
 def new_item():
     return render_template("new_item.html")
 
-@app.route("/debug")
-def debug_page():
-    # Pull basic tables
-    users = db.query("SELECT id, username FROM users ORDER BY id")
-    items = db.query("SELECT id, title, item_type FROM item ORDER BY id")
-    reviews = db.query("""
-        SELECT r.id, r.title, r.thoughts, r.rating, r.user_id, r.item_id
-        FROM review r
-        ORDER BY r.id
-    """)
-    comments = db.query("""
-        SELECT c.id, c.review_id, c.user_id, c.created_at, c.comment
-        FROM comments c
-        ORDER BY c.id
-    """)
-
-    # Optional: try created_at on review if it exists (won't crash if missing)
-    try:
-        reviews_with_created = db.query("""
-            SELECT r.id, r.title, r.thoughts, r.rating, r.user_id, r.item_id, r.created_at
-            FROM review r
-            ORDER BY r.id
-        """)
-        if reviews_with_created:
-            reviews = reviews_with_created
-    except Exception:
-        pass
-
-    # Optional: include per-type details if IDs align with item.id
-    songs = []
-    movies = []
-    series = []
-    games = []
-    try:
-        songs = db.query("SELECT id, song_title, singer FROM song ORDER BY id")
-    except Exception:
-        pass
-    try:
-        movies = db.query("SELECT id, movie_title, release_year FROM movie ORDER BY id")
-    except Exception:
-        pass
-    try:
-        series = db.query("SELECT id, series_title, release_year FROM series ORDER BY id")
-    except Exception:
-        pass
-    try:
-        games = db.query("SELECT id, game_name, release_year FROM game ORDER BY id")
-    except Exception:
-        pass
-
-    return render_template(
-        "debug.html",
-        users=users,
-        items=items,
-        reviews=reviews,
-        comments=comments,
-        songs=songs,
-        movies=movies,
-        series=series,
-        games=games,
-    )
-
-
 @app.route("/choose_category")
 def choose_category():
     return render_template("choose_category.html")
