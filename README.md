@@ -15,14 +15,20 @@ Sovelluksen perusvaatimukset ovat:
 
 ## Sovelluksen asennus
 
-```bash
+```
 pip install flask
 ```
 
 Luo tietokanna taulut ja lisää alkutiedot:
 
-```bash
+```
 sqlite3 database.db < schema.sql
+```
+
+Käynnistys:
+
+```
+flask run
 ```
 
 Avaa selaimessa:
