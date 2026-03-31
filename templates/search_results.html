@@ -8,7 +8,7 @@
   <h1>Search Results</h1>
 
   <p>
-    Category: {{item_type or "-" }}
+    Category: {{item_type|capitalize }}
   </p>
 
   {% if results %}
@@ -17,7 +17,7 @@
     {% for row in results %}
     <p>
       Item: {{ row.item_title }}<br>
-      Type: {{ row.item_type }}<br>
+      Type: {{ row.item_type|capitalize }}<br>
       <a href="/review/{{ row.review_id }}">Open review</a>
 
     </p>
