@@ -1,68 +1,44 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
   <title>Search Results</title>
-  <style>
-    body { font-family: sans-serif; margin: 20px; }
-    h1 { margin-bottom: 8px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 12px; }
-    th, td { border: 1px solid #ddd; padding: 6px 8px; font-size: 14px; }
-    th { background: #f4f4f4; text-align: left; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
-    .muted { color: #666; }
-  </style>
 </head>
+
 <body>
   <h1>Search Results</h1>
+
   <p>
-    Category: <strong>{{ item_type or '—' }}</strong> |
-    Query: <strong>{{ query or '—' }}</strong>
+    Category: {{item_type or "-" }}
   </p>
 
-  {% if results and results|length > 0 %}
-    <table>
-      <thead>
-        <tr>
-          <th>Item ID</th>
-          <th>Item Title</th>
-          <th>Type</th>
-          <th>Review ID</th>
-          <th>Review Title</th>
-          <th>Rating</th>
-          <th>Open</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in results %}
-          <tr>
-            <td class="mono">{{ row.item_id }}</td>
-            <td>{{ row.item_title }}</td>
-            <td class="mono">{{ row.item_type }}</td>
-            <td class="mono">
-              {% if row.review_id %}{{ row.review_id }}{% else %}<span class="muted">—</span>{% endif %}
-            </td>
-            <td>
-              {% if row.review_title %}{{ row.review_title }}{% else %}<span class="muted">No review</span>{% endif %}
-            </td>
-            <td class="mono">
-              {% if row.rating is not none %}{{ row.rating }}{% else %}<span class="muted">—</span>{% endif %}
-            </td>
-            <td>
-              {% if row.review_id %}
-                <a href="/review/{{ row.review_id }}">Open review</a>
-              {% else %}
-                <span class="muted">—</span>
-              {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p>No results.</p>
-  {% endif %}
+  <p>
+    Query: {{ query or "-" }}
+  </p>
 
-  <p><a href="/find_item">Back to search</a> | <a href="/">Home</a></p>
+  {% if results %}
+    <hr>
+
+    {% for row in results %}
+    <p>
+      Item: {{ row.item_title }}<br>
+      Type: {{ row.item_type }}<br>
+      <a href="/review/{{ row.review_id }}">Open review</a>
+      {% else #}
+      No review
+      {% endif %}
+    </p>
+    <hr>
+    {% endfor %}
+
+    {% else %}
+    <p>
+      No results
+    </p>
+    {% endif %}
+
+    <p>
+      <a href="/find_item">Back to search</a> |
+      <a href="/">Home</a>
+    </p>
 </body>
 </html>
