@@ -168,10 +168,9 @@ def create():
     except sqlite3.IntegrityError:
         return "VIRHE: tunnus on jo varattu"
 
-    return redirect("/")
+    return render_template("login.html")
 
 @app.route("/login", methods=["GET", "POST"])
-
 def login():
     if request.method == "GET":
         return render_template("login.html")
@@ -183,7 +182,7 @@ def login():
         sql = "SELECT id, password_hash FROM users WHERE username = ?"
         result = db.query(sql, [username])
         if len(result) == 0:
-            return "VIRHE: väärä tunnus tai salasana"
+            return render_template("login.html", error="VIRHE: väärä tunnus tai salasana")
         user = result[0]
         user_id = user["id"]
         password_hash = user["password_hash"]

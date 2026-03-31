@@ -4,7 +4,11 @@
 <head>
   <title>Log in</title>
 </head>
-
+    {% if error %}
+    <p 
+    style="color:red;">{{ error }}
+    </p>
+    {% endif %}
 <body>
   {% if session.username %}
   <p>
@@ -27,6 +31,10 @@
       <input type="password" name="password"/>
     </p>
     <input type="submit" value="Kirjaudu"/>
+    <p>
+      Don't have an account yet? <br/>
+      <a href="/register">Sign up</a>
+    </p>
   </form>
   {% endif %}
 </body>
