@@ -5,28 +5,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import config
 import db
+import queries as q  
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
 
 @app.route("/")
 def index():
-    result = db.query("""
-        SELECT r.id, 
-                r.title as review_title,
-                i.item_type,
-                i.title as item_title,
-                u.username,
-                COUNT(c.id) AS comment_count,
-                COALESCE(MAX(c.created_at), 'No comments yet') AS last_comment,
-                r.created_at
-        FROM review r
-        JOIN item i on r.item_id = i.id
-        JOIN users u ON r.user_id = u.id
-        LEFT JOIN comments c ON r.id = c.review_id
-        GROUP BY r.id, r.title, u.username
-        ORDER BY r.created_at DESC""")
-    
+    result = q.get_index_reviews()
     return render_template("index.html", review=result)
 
 @app.route("/search")
@@ -37,30 +23,8 @@ def search():
     if not item_type:
         return render_template("search_results.html", results=[], item_type=item_type, query=query)
 
-    sql ="""
-        SELECT
-            i.id AS item_id,
-            i.title AS item_title,
-            i.item_type,
-            r.id AS review_id,
-            r.title AS review_title,
-            r.rating,
-            u.username AS review_username
-        FROM item i
-        LEFT JOIN review r ON r.item_id = i.id
-        LEFT JOIN users u ON r.user_id = u.id
-        WHERE i.item_type = ?
-          AND (
-            LOWER(TRIM(i.title)) LIKE LOWER(?)
-            OR LOWER(COALESCE(TRIM(r.title), '')) LIKE LOWER(?)
-          )
-        ORDER BY i.title, r.id
-    """
-    params = [item_type, f"%{query}%", f"%{query}%"]
-    results = db.query(sql, params)
-
+    results = q.search_items_and_reviews(item_type, query)
     return render_template("search_results.html", results=results, item_type=item_type, query=query)
-
 
 @app.route("/find_item")
 def find_item():
@@ -76,17 +40,31 @@ def choose_category():
 
 @app.route("/create_item", methods=["POST"])
 def create_item():
-    title = request.form["title"]
-    item_type = request.form["item_type"]
+    title = request.form["title"].strip()
+    item_type = request.form["item_type"].strip().lower()
 
-    sql = "INSERT INTO item (title, item_type) VALUES (?, ?)"
-    db.execute(sql, [title, item_type])
+    allowed_categories = ["movie", "game", "series", "song"]
 
+    if not title:
+        abort(404)
+
+    if len(title) > 100:
+        abort(404)
+
+    if item_type not in allowed_categories:
+        abort(404)
+
+    q.create_item(title, item_type)
     return redirect("/")
 
 @app.route("/new_review/<category_name>")
 def new_review(category_name):
-    items = db.query("SELECT id, title FROM item WHERE item_type = ?", [category_name])
+    allowed_categories = ["movie", "game", "series", "song"]
+
+    if category_name not in allowed_categories:
+        abort(404)
+
+    items = q.get_items_by_type(category_name)
     return render_template("new_review.html", items=items, category_name=category_name)
 
 @app.route("/create_review", methods=["POST"])
@@ -100,53 +78,49 @@ def create_review():
 
     if item_type == "music":
         item_type = "song"
+
+    allowed_categories = ["movie", "game", "series", "song"]
+
+    if not title:
+        abort(400)
+    if len(title) > 100:
+        abort(400)
+
+    if not thoughts:
+        abort(400)
+    if len(thoughts) > 1000:
+        abort(400)
+
+    if not item_title:
+        abort(400)
+    if len(item_title) > 100:
+        abort(400)
+
+    if item_type not in allowed_categories:
+        abort(400)
+
+    if not rating.isdigit():
+        abort(400)
+
+    rating = int(rating)
+    if rating < 1 or rating > 5:
+        abort(400)
+    
     created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    item = db.query(
-        "SELECT id FROM item WHERE LOWER(title) = LOWER(?) AND item_type = ?",
-        [item_title, item_type]
-    )
+    item_id = q.get_item_id_by_title_and_type(item_title, item_type)
+    if item_id is None:
+        q.create_item(item_title, item_type)
+        item_id = q.get_item_id_by_title_and_type(item_title, item_type)
 
-    if item:
-        item_id = item[0]["id"]
-    else:
-        db.execute(
-            "INSERT INTO item (title, item_type) VALUES (?, ?)",
-            [item_title, item_type]
-        )
-        item_id = db.query(
-            "SELECT id FROM item WHERE LOWER(title) = LOWER(?) AND item_type = ?",
-            [item_title, item_type]
-        )[0]["id"]
-
-    db.execute(
-        """
-        INSERT INTO review (title, thoughts, rating, user_id, item_id, created_at)
-        VALUES (?, ?, ?, ?, ?, ?)
-        """,
-        [title, thoughts, rating, user_id, item_id, created_at]
-    )
-
-
+    q.create_review(title, thoughts, rating, user_id, item_id, created_at)
     return redirect("/")
 
 @app.route("/review/<int:review_id>")
 def show_review(review_id):
-    review = db.query("""
-        SELECT r.id,
-            r.title,
-            r.thoughts,
-            r.rating,
-            r.user_id,
-            r.item_id,
-            u.username,
-            i.title AS item_title
-        FROM review r
-        JOIN users u ON r.user_id = u.id
-        JOIN item i ON r.item_id = i.id
-        WHERE r.id = ?
-    """, [review_id])[0]
-
+    review = q.get_review_by_id(review_id)
+    if not review:
+        abort(404)
     return render_template("review.html", review=review)
 
 @app.route("/register")
@@ -179,20 +153,13 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
         
-        sql = "SELECT id, password_hash FROM users WHERE username = ?"
-        result = db.query(sql, [username])
-        if len(result) == 0:
+        user_id = q.check_login(username, password)
+        if user_id is None:
             return render_template("login.html", error="VIRHE: väärä tunnus tai salasana")
-        user = result[0]
-        user_id = user["id"]
-        password_hash = user["password_hash"]
 
-        if check_password_hash(password_hash, password):
-            session["user_id"] = user_id
-            session["username"] = username
-            return redirect("/")
-        else:
-            return "VIRHE: väärä tunnus tai salasana"
+        session["user_id"] = user_id
+        session["username"] = username
+        return redirect("/")
 
 @app.route("/logout")
 def logout():
