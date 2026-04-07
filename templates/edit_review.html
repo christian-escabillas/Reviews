@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Review</title>
+</head>
+
+<body>
+
+  <h1>Edit Review</h1>
+
+  <form action="/edit_review/{{ review.id }}" method="post">
+
+    <input type="hidden" name="item_type" value="{{ category_name }}">
+
+    <p>
+      Review Title: <br>
+      <input type="text" name="title"/>
+    </p>
+
+    <p>
+      Thoughts: <br>
+      <textarea name="thoughts" rows="10" cols="40"></textarea>
+    </p>
+
+    <p>
+      Rating: <br>
+      <input type="number" name="rating" min="1" max="5"/>
+    </p>
+
+    <input type="submit" value="Update Review"/>
+
+  </form>
+
+  <a href="/">Back to home</a>
+</body>
+
+</html>

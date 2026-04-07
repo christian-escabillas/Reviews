@@ -15,21 +15,6 @@ def index():
     result = q.get_index_reviews()
     return render_template("index.html", review=result)
 
-@app.route("/search")
-def search():
-    item_type = request.args.get("item_type")  
-    query = (request.args.get("query") or "").strip()
-
-    if not item_type:
-        return render_template("search_results.html", results=[], item_type=item_type, query=query)
-
-    results = q.search_items_and_reviews(item_type, query)
-    return render_template("search_results.html", results=results, item_type=item_type, query=query)
-
-@app.route("/find_item")
-def find_item():
-    return render_template("find_item.html")
-
 @app.route("/new_item")
 def new_item():
     return render_template("new_item.html")
@@ -37,6 +22,8 @@ def new_item():
 @app.route("/choose_category")
 def choose_category():
     return render_template("choose_category.html")
+
+# Item creation
 
 @app.route("/create_item", methods=["POST"])
 def create_item():
@@ -116,12 +103,97 @@ def create_review():
     q.create_review(title, thoughts, rating, user_id, item_id, created_at)
     return redirect("/")
 
+# Searching for items
+
+@app.route("/search")
+def search():
+    item_type = request.args.get("item_type")  
+    query = (request.args.get("query") or "").strip()
+
+    if not item_type:
+        return render_template("search_results.html", results=[], item_type=item_type, query=query)
+
+    results = q.search_items_and_reviews(item_type, query)
+    return render_template("search_results.html", results=results, item_type=item_type, query=query)
+
+@app.route("/find_item")
+def find_item():
+    return render_template("find_item.html")
+
 @app.route("/review/<int:review_id>")
 def show_review(review_id):
     review = q.get_review_by_id(review_id)
     if not review:
         abort(404)
     return render_template("review.html", review=review)
+
+# Editing and removing reviews
+
+@app.route("/edit_review/<int:review_id>", methods=["GET", "POST"])
+def edit_review(review_id):
+    review = q.get_review_by_id(review_id)
+    if not review:
+        abort(404)
+
+    if review['user_id'] != session.get("user_id"):
+        abort(403)
+
+    if request.method == "POST":
+        title = request.form["title"]
+        thoughts = request.form["thoughts"]
+        rating = request.form["rating"]
+
+        if not title or not thoughts or not rating.isdigit():
+            abort(400)
+
+        rating = int(rating)
+        if rating < 1 or rating > 5:
+            abort(400)
+
+        q.update_review(review_id, title, thoughts, rating)
+        return redirect(f"/review/{review_id}")
+
+    return render_template("edit_review.html", review=review)
+
+@app.route("/delete_review/<int:review_id>")
+def delete_review(review_id):
+    review = q.get_review_by_id(review_id)
+    if not review:
+        abort(404)
+
+    if review['user_id'] != session.get("user_id"):
+        abort(403)
+
+    q.delete_review(review_id)
+    return redirect("/")
+
+# Comments
+
+@app.route("/comment/<int:review_id>", methods=["POST"])
+def comment(review_id):
+    if "user_id" not in session:
+        return redirect("/login") 
+
+    comment_text = request.form.get("comment")
+    user_id = session["user_id"]
+
+    if not comment_text:
+        abort(400)
+
+    q.create_comment(review_id, user_id, comment_text)
+
+    return redirect("/")
+
+@app.route("/comments/<int:review_id>")
+def show_comments(review_id):
+
+    comments = q.get_comments_for_review(review_id)
+
+    review_title = q.get_review_title(review_id)
+    if review_title is None:
+        abort(404)
+
+    return render_template("show_comments.html", review_title=review_title, comments=comments)
 
 @app.route("/register")
 def register():

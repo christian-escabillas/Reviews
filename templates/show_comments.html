@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Comments for {{ review_title }}</title>
+</head>
+
+<body>
+    <h1>{{ review_title }}</h1>
+    <ul>
+        {% for comment in comments %}
+          <hr>
+            <p>User: {{ comment.username }}</p>
+            <p>{{ comment.comment }}</p>
+          <hr>
+          {% endfor %}
+      </div>
+    </ul>
+
+    <a href="/">Back to home</a>
+</body>
+</html>
