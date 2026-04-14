@@ -125,6 +125,8 @@ def show_review(review_id):
     review = q.get_review_by_id(review_id)
     if not review:
         abort(404)
+
+    comments = q.get_comments_for_review(review_id)
     return render_template("review.html", review=review)
 
 # Editing and removing reviews
@@ -194,6 +196,22 @@ def show_comments(review_id):
         abort(404)
 
     return render_template("show_comments.html", review_title=review_title, comments=comments)
+
+# Profile page
+
+@app.route("/profile/<int:user_id>")
+def profile(user_id):
+    user_info = q.get_user_by_id(user_id)
+
+    if user_info is None:
+        abort(404)
+
+    user_reviews = q.get_reviews_by_user_id(user_id)
+
+    comments = q.get_comments_for_review(user_reviews[0]['id']) if user_reviews else []
+    print(comments)
+    return render_template("profile.html", user=user_info, reviews=user_reviews)
+
 
 @app.route("/register")
 def register():

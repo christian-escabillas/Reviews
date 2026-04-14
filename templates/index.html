@@ -15,7 +15,8 @@
   <p>
   <a href="/choose_category">New Review</a> |
   <a href="/logout">Log out</a> |
-  <a href="/find_item">Search</a>
+  <a href="/find_item">Search</a> |
+  <a href="/profile/{{ session.user_id }}">Profile</a>
   </p>
   {% else %}
 
@@ -33,7 +34,7 @@
   <p>
     <a href="/review/{{ review.id }}">{{ review.review_title }}</a><br>
     {{ review.item_type|capitalize }}: {{ review.item_title }}<br>
-    Reviewed by {{ review.username }} ({{ review.created_at }})<br>
+    Reviewed by <a href="/profile/{{ review.user_id }}">{{ review.username }}</a> ({{ review.created_at }})<br>
   </p>
 
       <form action="/comment/{{ review.id }}" method="post">
@@ -45,14 +46,17 @@
         {% if review.comments %}
           <h3>Comments</h3>
           {% for comment in review.comments %}
+
           <hr>
-            <p>User: {{ comment.username }}</p>
+            <p>User: <a href="/profile/{{ comment.user_id }}">{{ comment.username }}</a></p>
             <p>{{ comment.comment }}</p>
           <hr>
           {% endfor %}
+
         {% else %}
           <p>No comments yet</p>
         {% endif %}
+
         {% if review.comment_count > 2 %}
           <a href="/comments/{{ review.id }}">Show All</a>
         {% endif %}

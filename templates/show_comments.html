@@ -9,12 +9,13 @@
     <ul>
         {% for comment in comments %}
           <hr>
-            <p>User: {{ comment.username }}</p>
+            <p>User: <a href="/profile/{{ comment.user_id }}">{{ comment.username }}</a></p>
             <p>{{ comment.comment }}</p>
           <hr>
           {% endfor %}
       </div>
     </ul>
+    
 
     <a href="/">Back to home</a>
 </body>

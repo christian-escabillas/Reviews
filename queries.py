@@ -6,18 +6,19 @@ import db
 # Index
 def get_index_reviews():
     sql = """
-    SELECT r.id, 
+    SELECT r.id,
            r.title AS review_title,
            i.item_type,
            i.title AS item_title,
            u.username,
+           u.id AS user_id,               -- reviewer user_id
            COUNT(c.id) AS comment_count,
            r.created_at
     FROM review r
     JOIN item i ON r.item_id = i.id
     JOIN users u ON r.user_id = u.id
     LEFT JOIN comments c ON r.id = c.review_id
-    GROUP BY r.id, r.title, i.item_type, u.username
+    GROUP BY r.id, r.title, i.item_type, u.username, u.id
     ORDER BY r.created_at DESC
     """
     reviews = db.query(sql)
@@ -30,13 +31,16 @@ def get_index_reviews():
             'item_type': review['item_type'],
             'item_title': review['item_title'],
             'username': review['username'],
+            'user_id': review['user_id'],  # reviewer’s id
             'comment_count': review['comment_count'],
             'created_at': review['created_at'],
             'comments': []
         }
 
         comment_sql = """
-        SELECT c.comment, u.username
+        SELECT c.comment,
+               u.username,
+               u.id AS user_id              -- commenter’s id (alias must be 'user_id')
         FROM comments c
         JOIN users u ON c.user_id = u.id
         WHERE c.review_id = ?
@@ -45,9 +49,8 @@ def get_index_reviews():
         """
         recent_comments = db.query(comment_sql, (review['id'],))
         review_dict['comments'] = recent_comments
-        review_list.append(review_dict) 
-    return review_list 
-
+        review_list.append(review_dict)
+    return review_list
 
 # Search
 def search_items_and_reviews(item_type: str, query: str):
@@ -123,6 +126,16 @@ def get_review_by_id(review_id: int):
     rows = db.query(sql, [review_id])
     return rows[0] if rows else None
 
+def get_reviews_by_user_id(user_id: int):
+    sql = """
+    SELECT r.id, r.title, r.rating, r.created_at, i.title AS item_title, i.item_type
+    FROM review r
+    JOIN item i ON r.item_id = i.id
+    WHERE r.user_id = ?
+    ORDER BY r.created_at DESC
+    """
+    return db.query(sql, [user_id])
+
 # Comments
 
 def create_comment(review_id, user_id, comment_text):
@@ -131,7 +144,7 @@ def create_comment(review_id, user_id, comment_text):
 
 def get_comments_for_review(review_id):
     sql = """
-    SELECT c.comment, u.username
+    SELECT c.comment, u.username, u.id AS user_id
     FROM comments c
     JOIN users u ON c.user_id = u.id
     WHERE c.review_id = ?
@@ -144,7 +157,6 @@ def get_review_title(review_id):
     row = db.query(sql, (review_id,))
     if row:
         return row[0]['title']
-
 
 # Users
 
@@ -164,3 +176,7 @@ def check_login(username: str, password: str):
         return None
     return row["id"] if check_password_hash(row["password_hash"], password) else None
 
+def get_user_by_id(user_id: int):
+    sql = "SELECT id, username FROM users WHERE id = ?"
+    rows = db.query(sql, [user_id])
+    return rows[0] if rows else None
