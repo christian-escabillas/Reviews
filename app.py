@@ -107,18 +107,22 @@ def create_review():
 
 @app.route("/search")
 def search():
-    item_type = request.args.get("item_type")  
-    query = (request.args.get("query") or "").strip()
+    query = (request.args.get("q") or request.args.get("query") or "").strip()
+    item_type = (request.args.get("item_type") or "all").strip()
+    sort = (request.args.get("sort") or "relevance").strip()
 
-    if not item_type:
-        return render_template("search_results.html", results=[], item_type=item_type, query=query)
+    if item_type == "all":
+        results = q.search_items_and_reviews_all(query)
+    else:
+        results = q.search_items_and_reviews(item_type, query)
 
-    results = q.search_items_and_reviews(item_type, query)
-    return render_template("search_results.html", results=results, item_type=item_type, query=query)
-
-@app.route("/find_item")
-def find_item():
-    return render_template("find_item.html")
+    return render_template(
+        "search_results.html",
+        results=results,
+        item_type=item_type,
+        query=query,
+        sort=sort,
+    )
 
 @app.route("/review/<int:review_id>")
 def show_review(review_id):

@@ -1,3 +1,6 @@
+{% extends "layout.html" %}
+
+{% block content %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,9 +10,21 @@
 <body>
   <h1>Search Results</h1>
 
-  <p>
-    Category: {{ item_type|capitalize }}
-  </p>
+  <form action="/search" method="get">
+    <input type="hidden" name="q" value="{{ query|e }}">
+    <label>
+      Sort by category:
+      <select name="item_type">
+        <option value="all" {% if item_type == "all" %}selected{% endif %}>All</option>
+        <option value="movie" {% if item_type == "movie" %}selected{% endif %}>Movie</option>
+        <option value="series" {% if item_type == "series" %}selected{% endif %}>Series</option>
+        <option value="game" {% if item_type == "game" %}selected{% endif %}>Game</option>
+        <option value="song" {% if item_type == "song" %}selected{% endif %}>Song</option>
+      </select>
+    </label>
+
+    <button type="submit" class="search-button">Apply</button>
+  </form>
 
   {% if results %}
     <hr>
@@ -31,9 +46,7 @@
     </p>
     {% endif %}
 
-    <p>
-      <a href="/find_item">Back to search</a> |
-      <a href="/">Home</a>
-    </p>
 </body>
 </html>
+
+{% endblock %}

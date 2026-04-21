@@ -76,6 +76,27 @@ def search_items_and_reviews(item_type: str, query: str):
     params = [item_type, f"%{query}%", f"%{query}%"]
     return db.query(sql, params)
 
+def search_items_and_reviews_all(query: str):
+    sql = """
+    SELECT i.id AS item_id,
+           i.title AS item_title,
+           i.item_type,
+           r.id AS review_id,
+           r.title AS review_title,
+           r.rating,
+           u.username AS review_username,
+           r.created_at
+    FROM item i
+    LEFT JOIN review r ON r.item_id = i.id
+    LEFT JOIN users u ON r.user_id = u.id
+    WHERE LOWER(TRIM(i.title)) LIKE LOWER(?)
+       OR LOWER(COALESCE(TRIM(r.title), '')) LIKE LOWER(?)
+    ORDER BY r.created_at DESC, i.title, r.id
+    """
+    params = [f"%{query}%", f"%{query}%"]
+    return db.query(sql, params)
+
+
 # Items
 def create_item(title: str, item_type: str):
     sql = "INSERT INTO item (title, item_type) VALUES (?, ?)"

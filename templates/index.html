@@ -15,25 +15,13 @@
   <p>
     You are logged in as {{ session.username }}
   </p>
-  <p>
-  <a href="/choose_category">New Review</a> |
-  <a href="/logout">Log out</a> |
-  <a href="/find_item">Search</a> |
-  <a href="/profile/{{ session.user_id }}">Profile</a>
-  </p>
-  {% else %}
-
-  <p> 
-  <a href="/login">Log in</a> |
-  <a href="/register">Sign up</a>
-  </p>
 
   {% endif %}
 
   <hr>
 
   {% for review in review %}
-  <div class="review"></div>
+  <div class="review-card">
   <p>
     <a href="/review/{{ review.id }}">{{ review.review_title }}</a><br>
     {{ review.item_type|capitalize }}: {{ review.item_title }}<br>

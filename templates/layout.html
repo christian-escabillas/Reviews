@@ -4,28 +4,41 @@
   <title>My Review App</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
 
-<div class="container">
-
-  <div class="header">
-    My Review App
-  </div>
-
   <div class="nav">
-    <a href="/">Home</a>
-    <a href="/new_review">New Review</a>
+    <div class="nav-left">
+      <a href="/" class="home-link">
+        <img src="{{ url_for('static', filename='home.png') }}" class="home-icon">
+      </a>
+
+      <form action="/search" method="get" class="search-form">
+        <input type="text" name="q" placeholder="Search for review..." class="search-input">
+        <button type="submit" class="search-button">Search</button>
+      </form>
+
+    </div>
+
+    <div class="nav-right">
+      {% if session.username %}
+
+      <a href="/choose_category" class="nav-link">New Review</a>      
+      <a href="/logout" class="nav-link">Log out</a>
+      <a href="/profile/{{ session.user_id }}" class="profile-link">
+        <img src="{{ url_for('static', filename='profile.png') }}" alt="Profile" class="profile-picture">
+    </a>
+
+    {% else %}
+      <a href="/login" class="nav-link">Log in</a>      
+      <a href="/register" class="nav-link">Sign up</a>
+    {% endif %}
+    </div>
   </div>
 
-  <div class="content">
+    <div class="content">
     {% block content %}{% endblock %}
-  </div>
-
-  <div class="footer">
-    © 2026 My Review App
-  </div>
-
-</div>
+    </div>
 
 </body>
 </html>
