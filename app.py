@@ -6,9 +6,14 @@ from datetime import datetime
 import config
 import db
 import queries as q  
+import secrets
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
+
+def ensure_csrf_token():
+    if "csrf_token" not in session:
+        session["csrf_token"] = secrets.token_hex(16)
 
 @app.route("/")
 def index():
@@ -27,6 +32,7 @@ def choose_category():
 
 @app.route("/create_item", methods=["POST"])
 def create_item():
+    check_csrf()
     title = request.form["title"].strip()
     item_type = request.form["item_type"].strip().lower()
 
@@ -56,6 +62,7 @@ def new_review(category_name):
 
 @app.route("/create_review", methods=["POST"])
 def create_review():
+    check_csrf()
     title = request.form["title"]
     thoughts = request.form["thoughts"]
     rating = request.form["rating"]
@@ -137,6 +144,7 @@ def show_review(review_id):
 
 @app.route("/edit_review/<int:review_id>", methods=["GET", "POST"])
 def edit_review(review_id):
+    check_csrf()
     review = q.get_review_by_id(review_id)
     if not review:
         abort(404)
@@ -177,6 +185,7 @@ def delete_review(review_id):
 
 @app.route("/comment/<int:review_id>", methods=["POST"])
 def comment(review_id):
+    check_csrf()
     if "user_id" not in session:
         return redirect("/login") 
 
@@ -216,13 +225,14 @@ def profile(user_id):
     print(comments)
     return render_template("profile.html", user=user_info, reviews=user_reviews)
 
-
 @app.route("/register")
 def register():
+    ensure_csrf_token()
     return render_template("register.html")
 
 @app.route("/create", methods=["POST"])
 def create():
+    check_csrf()
     username = request.form["username"]
     password1 = request.form["password1"]
     password2 = request.form["password2"]
@@ -253,7 +263,14 @@ def login():
 
         session["user_id"] = user_id
         session["username"] = username
+        session["csrf_token"] = secrets.token_hex(16)
         return redirect("/")
+
+def check_csrf():
+    token_form = request.form.get("csrf_token")
+    token_session = session.get("csrf_token")
+    if not token_form or not token_session or token_form != token_session:
+        abort(403)
 
 @app.route("/logout")
 def logout():

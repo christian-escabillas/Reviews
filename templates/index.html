@@ -29,6 +29,7 @@
   </p>
 
       <form action="/comment/{{ review.id }}" method="post">
+          <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
           <textarea name="comment" placeholder="Write a comment..." required></textarea><br>
           <input type="submit" value="Submit Comment">
       </form>

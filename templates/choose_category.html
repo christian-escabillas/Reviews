@@ -1,6 +1,45 @@
 {% extends "layout.html" %}
 
 {% block content %}
+
+<style>
+  .categories {
+    display: flex;
+    gap: 50px;
+    flex-wrap: wrap;
+  }
+
+  .category-box {
+    width: 200px;
+    height: 120px;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 12px;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .movie {
+    background-image: url("/static/movie.png");
+  }
+
+  .series {
+    background-image: url("/static/movie.png");
+  }
+
+  .game {
+    background-image: url("/static/movie.png");
+  }
+
+  .song {
+    background-image: url("/static/movie.png");
+  }
+</style>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,19 +50,9 @@
 
   <div class="categories">
     <a href="/new_review/movie" class="category-box">Movie</a>
-  </p>
-
-  <p>
     <a href="/new_review/game" class="category-box">Game</a>
-  </p>
-
-  <p>
     <a href="/new_review/series" class="category-box">Series</a>
-  </p>
-
-  <p>
     <a href="/new_review/song" class="category-box">Song</a>
-  </p>
   </div>
 
 </body>
