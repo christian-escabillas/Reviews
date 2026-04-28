@@ -266,7 +266,6 @@ def get_comments_for_review(review_id):
     """
     return db.query(sql, (review_id,))
 
-
 def get_review_title(review_id):
     sql = "SELECT title FROM review WHERE id = ?"
     row = db.query(sql, (review_id,))

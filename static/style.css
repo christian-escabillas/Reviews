@@ -1,8 +1,10 @@
 body {
-    background-color: rgba(50, 141, 94, 0.36);
+    background-color: rgb(238, 210, 172);
     font-family: Arial, sans-serif;
     margin: 0;
 }
+
+/* navtab */
 
 .nav {
     display: flex;
@@ -96,9 +98,76 @@ body {
     box-shadow: 0 0 0 3px black;
 }
 
+/* review-cards */
+
 .review-card {
-    margin-bottom: 30px;
-    padding-left: 20px;
+    background-color: white;
+    border: 2px solid black;
+    border-radius: 12px;
+    margin: 30px;
+    padding: 20px;
+    max-width: 800px;
+}
+
+.review-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: black;
+    text-decoration: none;
+}
+
+.review-title:hover {
+    transform: translateY(-1px);
+}
+
+.review-meta {
+    color: black;
+    margin-top: 8px;
+}
+
+.review-interactions {
+    display: flex;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    gap: 5px;
+}
+
+.review-interactions button {
+    width: 60px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border-radius: 12px;
+    margin-top: 5px;
+    cursor: pointer;
+}
+
+.review-interactions button:hover {
+    background-color: antiquewhite;
+}
+
+.review-interactions button.active {
+    background-color: antiquewhite;
+}
+
+.comment-form textarea {
+    height: 60px;
+    width: 180px;
+    min-height: 70px;
+    resize: vertical;
+    margin-top: 10px;
+    border-radius: 12px;
+}
+
+.comments {
+    margin-top: 20px;
+}
+
+.comment {
+    border-top: 1px solid black;
+    padding: 10px 0;
 }
 
 .content {

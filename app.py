@@ -182,7 +182,8 @@ def search():
     else:
         results = q.search_items_and_reviews(item_type, query)
 
-    # Annotate vote/favorite state for reviews present
+    results = [dict(r) for r in results]
+
     uid = session.get("user_id")
     review_ids = [row["review_id"] for row in results if row["review_id"] is not None]
     if uid and review_ids:

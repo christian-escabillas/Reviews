@@ -2,10 +2,6 @@
 
 {% block content %}
 
-<head>
-  <title>Reviews</title>
-</head>
-
   <h1>Review</h1>
 
   {% if session.username %}
@@ -19,11 +15,18 @@
 
   {% for review in reviews %}
   <div class="review-card">
-  <p>
+
+  <div class="review-header">
+    <a class="review-title" href="/review/{{ review.id }}">{{ review.review_title }}</a>
+
+  <p class="review-meta">
     <a href="/review/{{ review.id }}">{{ review.review_title }}</a><br>
     {{ review.item_type|capitalize }}: {{ review.item_title }}<br>
-    Reviewed by <a href="/profile/{{ review.user_id }}">{{ review.username }}</a> ({{ review.created_at }})<br>
-    
+    Reviewed by <a href="/profile/{{ review.user_id }}">{{ review.username }}</a>
+    <span class="review-date"> ({{ review.created_at }})</span>
+  </p>
+    </div>
+  
     <div class="review-interactions">
       <form action="{{ url_for('vote_review', review_id=review.id)}}" method="post">
         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
