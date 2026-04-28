@@ -3,24 +3,51 @@
 {% block content %}
 
 <style>
+
+  body {
+    background-color: rgb(50, 6, 6);
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .title {
+    text-align: center;
+    font-size: 40px;
+    font-weight: bold;
+    margin: 20px 0;
+    color: whitesmoke;
+  }
+
   .categories {
-    display: flex;
-    gap: 50px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
   }
 
   .category-box {
-    width: 200px;
-    height: 120px;
+    height: 180px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    text-decoration: none;
+    padding: 20px;
     color: white;
-    font-size: 20px;
+    font-size: 30px;
     font-weight: bold;
-    border-radius: 12px;
+    text-decoration: none;
+    border-radius: 15px;
+    border: 5px solid black;
     background-size: cover;
     background-position: center;
+    box-sizing: border-box;
+    transition: all 0.25s ease
+  }
+
+  .category-box:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
   }
 
   .movie {
@@ -28,31 +55,25 @@
   }
 
   .series {
-    background-image: url("/static/movie.png");
+    background-image: url("/static/series.png");
   }
 
   .game {
-    background-image: url("/static/movie.png");
+    background-image: url("/static/game.png");
   }
 
   .song {
-    background-image: url("/static/movie.png");
+    background-image: url("/static/song.png");
   }
 </style>
 
-<!DOCTYPE html>
-<html>
-<head>
-  <title>New Review</title>
-</head>
-<body>
-  <h1>Choose a category</h1>
+  <h1 class="title">What are you reviewing?</h1>
 
   <div class="categories">
-    <a href="/new_review/movie" class="category-box">Movie</a>
-    <a href="/new_review/game" class="category-box">Game</a>
-    <a href="/new_review/series" class="category-box">Series</a>
-    <a href="/new_review/song" class="category-box">Song</a>
+    <a href="/new_review/movie" class="category-box movie">Movie</a>
+    <a href="/new_review/game" class="category-box game">Game</a>
+    <a href="/new_review/series" class="category-box series">Series</a>
+    <a href="/new_review/song" class="category-box song">Song</a>
   </div>
 
 </body>

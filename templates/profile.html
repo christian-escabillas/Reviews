@@ -1,14 +1,14 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ user.username }}</title>
-</head>
 
-<body>
 <h1>{{ user.username }}</h1>
+<div class="user-stats">
+  <p>Upvotes: {{ vote_totals.upvotes_received }}</p>
+  <p>Upvotes: {{ vote_totals.downvotes_received }}</p>
+  <p>Score: {{ vote_totals.score_received }}</p>
+</div>
+
 <hr>
   {% if reviews %}
     <ul>
@@ -29,6 +29,4 @@
   {% endif %}
   <br>
   
-</body>
-</html>
 {% endblock %}

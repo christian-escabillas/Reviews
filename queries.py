@@ -38,9 +38,11 @@ def get_index_reviews():
         }
 
         comment_sql = """
-        SELECT c.comment,
-               u.username,
-               u.id AS user_id              -- commenter’s id (alias must be 'user_id')
+        SELECT
+            c.id AS id,
+            c.comment,
+            u.username,
+            u.id AS user_id
         FROM comments c
         JOIN users u ON c.user_id = u.id
         WHERE c.review_id = ?
@@ -50,6 +52,16 @@ def get_index_reviews():
         recent_comments = db.query(comment_sql, (review['id'],))
         review_dict['comments'] = recent_comments
         review_list.append(review_dict)
+
+    for review_dict in review_list:
+        rid = review_dict['id']
+        vote_counts = get_review_vote_counts(rid)
+        fav_count = get_review_favorite_count(rid)
+        review_dict['upvotes'] = vote_counts['upvotes']
+        review_dict['downvotes'] = vote_counts['downvotes']
+        review_dict['score'] = vote_counts['score']
+        review_dict['favorites'] = fav_count['favorites']
+
     return review_list
 
 # Search
@@ -157,6 +169,83 @@ def get_reviews_by_user_id(user_id: int):
     """
     return db.query(sql, [user_id])
 
+# Review interactions
+
+def get_review_vote(user_id: int, review_id: int):
+    sql = "SELECT id, value FROM review_votes WHERE user_id = ? AND review_id = ?"
+    rows = db.query(sql, [user_id, review_id])
+    return rows[0] if rows else None
+
+def insert_review_vote(user_id: int, review_id: int, value: int):
+    sql = "INSERT INTO review_votes (user_id, review_id, value) VALUES (?, ?, ?)"
+    db.execute(sql, [user_id, review_id, value])
+
+def update_review_vote(user_id: int, review_id: int, value: int):
+    sql = "UPDATE review_votes SET value = ? WHERE user_id = ? AND review_id = ?"
+    db.execute(sql, [value, user_id, review_id])
+
+def delete_review_vote(user_id: int, review_id: int):
+    sql = "DELETE FROM review_votes WHERE user_id = ? AND review_id = ?"
+    db.execute(sql, [user_id, review_id])
+
+# Favorites: read/write/toggle
+def is_favorited(user_id: int, review_id: int) -> bool:
+    sql = "SELECT 1 FROM review_favorites WHERE user_id = ? AND review_id = ?"
+    return bool(db.query(sql, [user_id, review_id]))
+
+def favorite(user_id: int, review_id: int):
+    sql = "INSERT INTO review_favorites (user_id, review_id) VALUES (?, ?)"
+    db.execute(sql, [user_id, review_id])
+
+def unfavorite(user_id: int, review_id: int):
+    sql = "DELETE FROM review_favorites WHERE user_id = ? AND review_id = ?"
+    db.execute(sql, [user_id, review_id])
+
+def get_review_vote_counts(review_id: int):
+    sql = """
+      SELECT
+        COALESCE(SUM(CASE WHEN value = 1 THEN 1 ELSE 0 END), 0) AS upvotes,
+        COALESCE(SUM(CASE WHEN value = -1 THEN 1 ELSE 0 END), 0) AS downvotes,
+        COALESCE(SUM(value), 0) AS score
+      FROM review_votes WHERE review_id = ?
+    """
+    rows = db.query(sql, [review_id])
+    return rows[0]
+
+def get_review_favorite_count(review_id: int):
+    sql = "SELECT COUNT(*) AS favorites FROM review_favorites WHERE review_id = ?"
+    rows = db.query(sql, [review_id])
+    return rows[0]
+
+def get_user_votes_for_reviews(user_id: int, review_ids):
+    if not review_ids:
+        return {}
+    placeholders = ",".join(["?"] * len(review_ids))
+    sql = f"SELECT review_id, value FROM review_votes WHERE user_id = ? AND review_id IN ({placeholders})"
+    rows = db.query(sql, [user_id, *review_ids])
+    return {row["review_id"]: row["value"] for row in rows}
+
+def get_user_favorites_for_reviews(user_id: int, review_ids):
+    if not review_ids:
+        return set()
+    placeholders = ",".join(["?"] * len(review_ids))
+    sql = f"SELECT review_id FROM review_favorites WHERE user_id = ? AND review_id IN ({placeholders})"
+    rows = db.query(sql, [user_id, *review_ids])
+    return {row["review_id"] for row in rows}
+
+def get_user_vote_totals(user_id: int):
+    sql = """
+      SELECT
+        COALESCE(SUM(CASE WHEN rv.value = 1 THEN 1 ELSE 0 END), 0) AS upvotes_received,
+        COALESCE(SUM(CASE WHEN rv.value = -1 THEN 1 ELSE 0 END), 0) AS downvotes_received,
+        COALESCE(SUM(rv.value), 0) AS score_received
+      FROM review r
+      LEFT JOIN review_votes rv ON rv.review_id = r.id
+      WHERE r.user_id = ?
+    """
+    rows = db.query(sql, [user_id])
+    return rows[0]
+
 # Comments
 
 def create_comment(review_id, user_id, comment_text):
@@ -165,19 +254,42 @@ def create_comment(review_id, user_id, comment_text):
 
 def get_comments_for_review(review_id):
     sql = """
-    SELECT c.comment, u.username, u.id AS user_id
-    FROM comments c
-    JOIN users u ON c.user_id = u.id
-    WHERE c.review_id = ?
-    ORDER BY c.created_at DESC
+      SELECT
+        c.id AS id,
+        c.comment,
+        u.username,
+        u.id AS user_id
+      FROM comments c
+      JOIN users u ON c.user_id = u.id
+      WHERE c.review_id = ?
+      ORDER BY c.created_at DESC
     """
     return db.query(sql, (review_id,))
+
 
 def get_review_title(review_id):
     sql = "SELECT title FROM review WHERE id = ?"
     row = db.query(sql, (review_id,))
     if row:
         return row[0]['title']
+
+def get_comment_by_id(comment_id: int):
+    sql = """
+      SELECT c.id, c.review_id, c.user_id, c.comment, c.created_at, u.username
+      FROM comments c
+      JOIN users u ON u.id = c.user_id
+      WHERE c.id = ?
+    """
+    rows = db.query(sql, [comment_id])
+    return rows[0] if rows else None
+
+def update_comment(comment_id: int, new_text: str):
+    sql = "UPDATE comments SET comment = ? WHERE id = ?"
+    db.execute(sql, [new_text, comment_id])
+
+def delete_comment_by_id(comment_id: int):
+    sql = "DELETE FROM comments WHERE id = ?"
+    db.execute(sql, [comment_id])
 
 # Users
 

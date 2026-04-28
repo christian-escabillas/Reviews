@@ -1,14 +1,11 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<!DOCTYPE html>
-<html>
 
 <head>
   <title>Reviews</title>
 </head>
 
-<body>
   <h1>Review</h1>
 
   {% if session.username %}
@@ -20,19 +17,40 @@
 
   <hr>
 
-  {% for review in review %}
+  {% for review in reviews %}
   <div class="review-card">
   <p>
     <a href="/review/{{ review.id }}">{{ review.review_title }}</a><br>
     {{ review.item_type|capitalize }}: {{ review.item_title }}<br>
     Reviewed by <a href="/profile/{{ review.user_id }}">{{ review.username }}</a> ({{ review.created_at }})<br>
+    
+    <div class="review-interactions">
+      <form action="{{ url_for('vote_review', review_id=review.id)}}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+        <input type="hidden" name="value" value="1">
+        <button type="submit" class="{{ 'active' if review.user_vote == 1 else '' }}">▲ {{ review.upvotes }}</button>
+      </form>
+
+      <form action="{{ url_for('vote_review', review_id=review.id)}}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+        <input type="hidden" name="value" value="-1">
+        <button type="submit" class="{{ 'active' if review.user_vote == -1 else '' }}">▼ {{ review.downvotes }}</button>
+      </form>
+
+      <form action="{{ url_for('favorite_review', review_id=review.id)}}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+        <button type="submit" class="{{ 'active' if review.favorited else '' }}">★ {{ review.favorites }}</button>
+      </form>
+    </div>
   </p>
 
+    {% if session.username %}
       <form action="/comment/{{ review.id }}" method="post">
           <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
           <textarea name="comment" placeholder="Write a comment..." required></textarea><br>
           <input type="submit" value="Submit Comment">
       </form>
+    {% endif %}
 
       <div class="comments">
         {% if review.comments %}
@@ -42,6 +60,15 @@
           <hr>
             <p>User: <a href="/profile/{{ comment.user_id }}">{{ comment.username }}</a></p>
             <p>{{ comment.comment }}</p>
+          <hr>
+
+          {% if session.get('user_id') == comment.user_id %}
+            <a href="{{ url_for('edit_comment', comment_id=comment.id) }}">Edit</a>
+            <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="post" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+              <button type="submit" onclick="return confirm('Delete this comment?');">Delete</button>
+            </form>
+          {% endif %}
           <hr>
           {% endfor %}
 
@@ -57,7 +84,5 @@
   <hr>
 
   {% endfor %}
-</body>
-
-</html>
+  
 {% endblock %}

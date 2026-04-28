@@ -18,7 +18,29 @@ def ensure_csrf_token():
 @app.route("/")
 def index():
     result = q.get_index_reviews()
-    return render_template("index.html", review=result)
+
+    for r in result:
+        vc = q.get_review_vote_counts(r["id"])
+        fc = q.get_review_favorite_count(r["id"])
+        r["upvotes"] = vc["upvotes"]
+        r["downvotes"] = vc["downvotes"]
+        r["score"] = vc["score"]
+        r["favorites"] = fc["favorites"]
+
+    uid = session.get("user_id")
+    if uid:
+        review_ids = [r["id"] for r in result]
+        votes_map = q.get_user_votes_for_reviews(uid, review_ids)
+        favs_set = q.get_user_favorites_for_reviews(uid, review_ids)
+        for r in result:
+            r["user_vote"] = votes_map.get(r["id"])
+            r["favorited"] = (r["id"] in favs_set)
+    else:
+        for r in result:
+            r["user_vote"] = None
+            r["favorited"] = False
+
+    return render_template("index.html", reviews=result)
 
 @app.route("/new_item")
 def new_item():
@@ -110,6 +132,43 @@ def create_review():
     q.create_review(title, thoughts, rating, user_id, item_id, created_at)
     return redirect("/")
 
+# Review interactions
+
+@app.route("/review/<int:review_id>/vote", methods=["POST"])
+def vote_review(review_id):
+    check_csrf()
+    if "user_id" not in session:
+        return redirect("/login")
+    user_id = session["user_id"]
+    value = request.form.get("value")
+    if value not in ("1", "-1"):
+        abort(400)
+    value = int(value)
+
+    existing = q.get_review_vote(user_id, review_id)
+    if existing is None:
+        q.insert_review_vote(user_id, review_id, value)
+    else:
+        if existing["value"] == value:
+
+            q.delete_review_vote(user_id, review_id)
+        else:
+            q.update_review_vote(user_id, review_id, value)
+    return redirect(request.referrer or "/")
+
+@app.route("/review/<int:review_id>/favorite", methods=["POST"])
+def favorite_review(review_id):
+    check_csrf()
+    if "user_id" not in session:
+        return redirect("/login")
+    user_id = session["user_id"]
+
+    if q.is_favorited(user_id, review_id):
+        q.unfavorite(user_id, review_id)
+    else:
+        q.favorite(user_id, review_id)
+    return redirect(request.referrer or "/")
+
 # Searching for items
 
 @app.route("/search")
@@ -123,6 +182,25 @@ def search():
     else:
         results = q.search_items_and_reviews(item_type, query)
 
+    # Annotate vote/favorite state for reviews present
+    uid = session.get("user_id")
+    review_ids = [row["review_id"] for row in results if row["review_id"] is not None]
+    if uid and review_ids:
+        votes_map = q.get_user_votes_for_reviews(uid, review_ids)
+        favs_set = q.get_user_favorites_for_reviews(uid, review_ids)
+        for row in results:
+            rid = row["review_id"]
+            if rid:
+                row["user_vote"] = votes_map.get(rid)
+                row["favorited"] = (rid in favs_set)
+            else:
+                row["user_vote"] = None
+                row["favorited"] = False
+    else:
+        for row in results:
+            row["user_vote"] = None
+            row["favorited"] = False
+
     return render_template(
         "search_results.html",
         results=results,
@@ -130,6 +208,7 @@ def search():
         query=query,
         sort=sort,
     )
+
 
 @app.route("/review/<int:review_id>")
 def show_review(review_id):
@@ -144,7 +223,6 @@ def show_review(review_id):
 
 @app.route("/edit_review/<int:review_id>", methods=["GET", "POST"])
 def edit_review(review_id):
-    check_csrf()
     review = q.get_review_by_id(review_id)
     if not review:
         abort(404)
@@ -153,6 +231,7 @@ def edit_review(review_id):
         abort(403)
 
     if request.method == "POST":
+        check_csrf()
         title = request.form["title"]
         thoughts = request.form["thoughts"]
         rating = request.form["rating"]
@@ -169,8 +248,9 @@ def edit_review(review_id):
 
     return render_template("edit_review.html", review=review)
 
-@app.route("/delete_review/<int:review_id>")
+@app.route("/delete_review/<int:review_id>", methods=["POST"])
 def delete_review(review_id):
+    check_csrf()
     review = q.get_review_by_id(review_id)
     if not review:
         abort(404)
@@ -210,20 +290,53 @@ def show_comments(review_id):
 
     return render_template("show_comments.html", review_title=review_title, comments=comments)
 
+@app.route("/comment/<int:comment_id>/edit", methods=["GET", "POST"])
+def edit_comment(comment_id):
+    comment = q.get_comment_by_id(comment_id)
+    if not comment:
+        abort(404)
+
+    if comment["user_id"] != session.get("user_id"):
+        abort(403)
+
+    if request.method == "POST":
+        check_csrf()
+        new_text = (request.form.get("comment") or "").strip()
+        if not new_text:
+            abort(400)
+        q.update_comment(comment_id, new_text)
+
+        return redirect(f"/review/{comment['review_id']}")
+
+    return render_template("edit_comment.html", comment=comment)
+
+@app.route("/comment/<int:comment_id>/delete", methods=["POST"])
+def delete_comment(comment_id):
+    check_csrf()
+    comment = q.get_comment_by_id(comment_id)
+    if not comment:
+        abort(404)
+    if comment["user_id"] != session.get("user_id"):
+        abort(403)
+    q.delete_comment_by_id(comment_id)
+    return redirect(f"/review/{comment['review_id']}")
+
 # Profile page
 
 @app.route("/profile/<int:user_id>")
 def profile(user_id):
     user_info = q.get_user_by_id(user_id)
-
     if user_info is None:
         abort(404)
-
     user_reviews = q.get_reviews_by_user_id(user_id)
+    vote_totals = q.get_user_vote_totals(user_id)
 
-    comments = q.get_comments_for_review(user_reviews[0]['id']) if user_reviews else []
-    print(comments)
-    return render_template("profile.html", user=user_info, reviews=user_reviews)
+    return render_template(
+        "profile.html",
+        user=user_info,
+        reviews=user_reviews,
+        vote_totals=vote_totals,
+    )
 
 @app.route("/register")
 def register():
