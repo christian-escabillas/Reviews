@@ -1,14 +1,8 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<!DOCTYPE html>
-<html>
 
-<head>
-  <title>Log in</title>
-</head>
-
-<body>
+<h1>Log in</h1>
   {% if session.username %}
   <p>
     You are logged in as {{ session.username }}
@@ -23,14 +17,14 @@
   <form action="/login" method="post">
     <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
     <p>
-      Tunnus: <br />
+      Username: <br />
       <input type="text" name="username"/>
     </p>
     <p>
-      Salasana: <br />
+      Password: <br />
       <input type="password" name="password"/>
     </p>
-    <input type="submit" value="Kirjaudu"/>
+    <input type="submit" value="Log in"/>
     {% if error %}
     <p 
     style="color:red;">{{ error }}
@@ -42,7 +36,5 @@
     </p>
   </form>
   {% endif %}
-</body>
 
-</html>
 {% endblock %}

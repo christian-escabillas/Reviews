@@ -149,7 +149,7 @@ body {
 }
 
 .review-interactions button.active {
-    background-color: antiquewhite;
+    background-color: rgb(234, 166, 174);
 }
 
 .comment-form textarea {
@@ -168,6 +168,95 @@ body {
 .comment {
     border-top: 1px solid black;
     padding: 10px 0;
+}
+
+/* Profile page */
+
+.profile-page {
+    display: flex;
+    min-height: calc(100vh - 90px);
+    border: 2px solid black
+}
+
+.profile-main {
+    flex: 2;
+    border-right: 2px solid black;
+}
+
+.profile-stats {
+    flex: 1;
+    text-align: center;
+}
+
+.profile-username {
+    border-bottom: 2px solid black;
+    text-align: center;
+    padding: 30px;
+}
+
+.profile-username h1 {
+    margin: 0;
+    font-size: 36px;
+}
+
+.profile-reviews {
+    padding: 25px;
+}
+
+.profile-reviews h2 {
+    text-align: center;
+    margin-top: 0;
+}
+
+.profile-page .review-card {
+    border-bottom: 1px solid black;
+    padding: 15px 0;
+}
+
+.profile-page .review-card a {
+    font-size: 22px;
+    font-weight: bold;
+    text-decoration: none;
+    color: black;
+}
+
+.stats-box {
+    border-bottom: 2px solid black;
+    padding: 20px;
+    text-align: center;
+}
+
+.stats-box h2 {
+    text-align: center;
+}
+
+hr {
+    border: none;
+    border-top: 2px solid black;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+}
+
+.stat-mini {
+    border: 2px solid black;
+    border-radius: 12px;
+    padding: 15px 25px;
+    min-width: 60px;
+    text-align: center;
+}
+
+.stat-mini p {
+    margin: 5px 0;
+}
+
+.favorite-box {
+    border-bottom: 2px solid black;
+    padding: 20px;
+    text-align: center;
 }
 
 .content {

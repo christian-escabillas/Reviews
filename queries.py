@@ -169,6 +169,33 @@ def get_reviews_by_user_id(user_id: int):
     """
     return db.query(sql, [user_id])
 
+def get_user_top_item_by_type(user_id: int, item_type: str):
+    sql = """
+      SELECT i.title AS item_title,
+             COALESCE(SUM(rv.value), 0) AS score
+      FROM review r
+      JOIN item i ON i.id = r.item_id
+      LEFT JOIN review_votes rv ON rv.review_id = r.id
+      WHERE r.user_id = ?
+        AND i.item_type = ?
+      GROUP BY i.id, i.title
+      ORDER BY score DESC, i.title
+      LIMIT 1
+    """
+    rows = db.query(sql, [user_id, item_type])
+    return rows[0] if rows else None
+
+def get_user_reviewed_items_by_type(user_id: int, item_type: str):
+    sql = """
+      SELECT DISTINCT i.title AS item_title
+      FROM review r
+      JOIN item i ON i.id = r.item_id
+      WHERE r.user_id = ?
+        AND i.item_type = ?
+      ORDER BY i.title
+    """
+    return db.query(sql, [user_id, item_type])
+
 # Review interactions
 
 def get_review_vote(user_id: int, review_id: int):
@@ -188,7 +215,6 @@ def delete_review_vote(user_id: int, review_id: int):
     sql = "DELETE FROM review_votes WHERE user_id = ? AND review_id = ?"
     db.execute(sql, [user_id, review_id])
 
-# Favorites: read/write/toggle
 def is_favorited(user_id: int, review_id: int) -> bool:
     sql = "SELECT 1 FROM review_favorites WHERE user_id = ? AND review_id = ?"
     return bool(db.query(sql, [user_id, review_id]))
@@ -293,20 +319,40 @@ def delete_comment_by_id(comment_id: int):
 # Users
 
 def create_user(username: str, password: str):
+    username = username.strip()
+    username_lower = username.lower()
+
     password_hash = generate_password_hash(password, method="pbkdf2:sha256")
-    sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)"
-    db.execute(sql, [username, password_hash])
+
+    sql = """
+        INSERT INTO users (username, username_lower, password_hash)
+        VALUES (?, ?, ?)
+    """
+
+    db.execute(sql, [username, username_lower, password_hash])
 
 def get_user_by_username(username: str):
     sql = "SELECT id, password_hash FROM users WHERE username = ?"
     rows = db.query(sql, [username])
     return rows[0] if rows else None
 
-def check_login(username: str, password: str):
-    row = get_user_by_username(username)
-    if not row:
+def check_login(username_lower: str, password: str):
+    sql = """
+        SELECT id, username, password_hash
+        FROM users
+        WHERE username_lower = ?
+    """
+    user = db.query(sql, [username_lower])
+
+    if not user:
         return None
-    return row["id"] if check_password_hash(row["password_hash"], password) else None
+
+    user = user[0]
+
+    if check_password_hash(user["password_hash"], password):
+        return user
+
+    return None
 
 def get_user_by_id(user_id: int):
     sql = "SELECT id, username FROM users WHERE id = ?"

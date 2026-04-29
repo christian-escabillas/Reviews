@@ -2,15 +2,17 @@
 
 {% block content %}
 
-<h1>{{ user.username }}</h1>
-<div class="user-stats">
-  <p>Upvotes: {{ vote_totals.upvotes_received }}</p>
-  <p>Upvotes: {{ vote_totals.downvotes_received }}</p>
-  <p>Score: {{ vote_totals.score_received }}</p>
-</div>
+<div class="profile-page">
 
-<hr>
-  {% if reviews %}
+<main class="profile-main">
+  <section class="profile-username">
+    <h1>{{ user.username }}</h1>
+  </section>
+
+  <section class="profile-reviews">
+    <h2>{{ user.username }}'s reviews</h2>
+
+    {% if reviews %}
     <ul>
     {% for review in reviews %}
     <li>
@@ -27,6 +29,62 @@
     This user has not made a review yet...
 
   {% endif %}
-  <br>
+  </section>
+</main>
+
+<aside class="profile-stats">
+  <section class="stat-box">
+    <h2>Statistics</h2>
+    <div class="stat-row">
+      <div class="stat-mini">
+        <p>▲</p>
+        <p>{{ vote_totals.upvotes_received }}</p>
+      </div>
+
+      <div class="stat-mini">
+        <p>▲▼</p>
+        <p>{{ vote_totals.score_received }}</p>
+      </div>
+
+      <div class="stat-mini">
+        <p>▼</p>
+        <p>{{ vote_totals.downvotes_received }}</p>
+      </div>
+
+    </div>
+  </section>
+
+<hr>
+
+  <section class="favorite-box">
+    <h2>{{ user.username }}'s favorites</h2>
+
+  <form method="get" action="{{ url_for('profile', user_id=user.id) }}">
+    <label>
+      Sort by:
+      <select name="favorite_item_type">
+        <option value="movie" {% if favorite_item_type=='movie' %}selected{% endif %}>movie</option>
+        <option value="series" {% if favorite_item_type=='series' %}selected{% endif %}>series</option>
+        <option value="game" {% if favorite_item_type=='game' %}selected{% endif %}>game</option>
+        <option value="song" {% if favorite_item_type=='song' %}selected{% endif %}>song</option>
+      </select>
+    </label>
+    <button type="submit" class="search-button">Sort</button>
+  </form>
+<hr>
+  <h4>Favorite {{ favorite_item_type|capitalize }}</h4>
+
+  {% if favorite_items %}
+    {% for row in favorite_items %}
+    <li>{{ row.item_title }}</li>
+    {% endfor %}
   
+    {% else %}
+    <p>This user has no favorites</p>
+    {% endif %}
+
+  </section>
+</aside>
+</div>
+
 {% endblock %}

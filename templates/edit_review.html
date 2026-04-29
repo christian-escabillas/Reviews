@@ -1,16 +1,8 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<!DOCTYPE html>
-<html>
 
-<head>
-  <title>Review</title>
-</head>
-
-<body>
-
-  <h1>Edit Review</h1>
+<h1>Edit Review</h1>
 
   <form action="/edit_review/{{ review.id }}" method="post">
 
@@ -36,8 +28,4 @@
 
   </form>
 
-
-</body>
-
-</html>
 {% endblock %}

@@ -136,9 +136,11 @@ def create_review():
 
 @app.route("/review/<int:review_id>/vote", methods=["POST"])
 def vote_review(review_id):
-    check_csrf()
     if "user_id" not in session:
         return redirect("/login")
+
+    check_csrf()
+
     user_id = session["user_id"]
     value = request.form.get("value")
     if value not in ("1", "-1"):
@@ -158,9 +160,11 @@ def vote_review(review_id):
 
 @app.route("/review/<int:review_id>/favorite", methods=["POST"])
 def favorite_review(review_id):
-    check_csrf()
     if "user_id" not in session:
         return redirect("/login")
+
+    check_csrf()
+
     user_id = session["user_id"]
 
     if q.is_favorited(user_id, review_id):
@@ -209,7 +213,6 @@ def search():
         query=query,
         sort=sort,
     )
-
 
 @app.route("/review/<int:review_id>")
 def show_review(review_id):
@@ -329,15 +332,26 @@ def profile(user_id):
     user_info = q.get_user_by_id(user_id)
     if user_info is None:
         abort(404)
+
+    favorite_item_type = (request.args.get("favorite_item_type") or "movie").strip().lower()
+    allowed = {"movie", "series", "game", "song"}
+    if favorite_item_type not in allowed:
+        favorite_item_type = "movie"
+
     user_reviews = q.get_reviews_by_user_id(user_id)
     vote_totals = q.get_user_vote_totals(user_id)
+
+    favorite_items = q.get_user_reviewed_items_by_type(user_id, favorite_item_type)
 
     return render_template(
         "profile.html",
         user=user_info,
         reviews=user_reviews,
         vote_totals=vote_totals,
+        favorite_item_type=favorite_item_type,
+        favorite_items=favorite_items,
     )
+
 
 @app.route("/register")
 def register():
@@ -347,18 +361,31 @@ def register():
 @app.route("/create", methods=["POST"])
 def create():
     check_csrf()
-    username = request.form["username"]
+
+    username = request.form["username"].strip()
+    username_lower = username.lower()
+
     password1 = request.form["password1"]
     password2 = request.form["password2"]
+
+    if not username or len(username) < 3:
+        return "Username must be at least 3 characters long"
+
+    if len(username) > 20:
+        return "Username too long"
+
+    if not username.isalnum():
+        return "Username can only contain letters and numbers"
+
     if password1 != password2:
-        return "VIRHE: salasanat eivät ole samat"
+        return "ERROR: Passwords don not match"
     password_hash = generate_password_hash(password1, method="pbkdf2:sha256")
 
     try:
-        sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)"
-        db.execute(sql, [username, password_hash])
+        sql = "INSERT INTO users (username, username_lower, password_hash) VALUES (?, ?, ?)"
+        db.execute(sql, [username, username_lower, password_hash])
     except sqlite3.IntegrityError:
-        return "VIRHE: tunnus on jo varattu"
+        return "ERROR: Username already in use"
 
     return render_template("login.html")
 
@@ -369,14 +396,15 @@ def login():
 
     if request.method == "POST":
         username = request.form["username"]
+        username_lower = username.lower()
         password = request.form["password"]
         
-        user_id = q.check_login(username, password)
-        if user_id is None:
-            return render_template("login.html", error="VIRHE: väärä tunnus tai salasana")
+        user = q.check_login(username_lower, password)
+        if user is None:
+            return render_template("login.html", error="ERROR: invalid username or password")
 
-        session["user_id"] = user_id
-        session["username"] = username
+        session["user_id"] = user["id"]
+        session["username"] = user["username"]
         session["csrf_token"] = secrets.token_hex(16)
         return redirect("/")
 

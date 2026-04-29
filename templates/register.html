@@ -1,35 +1,27 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<!DOCTYPE html>
-<html>
 
-<head>
-  <title>Account Creation</title>
-</head>
-
-<body>
+<h1>Account Creation</h1>
   <form action="/create" method="post">
     <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
     <p>
-      Tunnus: <br />
+      Username: <br />
       <input type="text" name="username"/>
     </p>
     <p>
-      Salasana: <br />
+      Password: <br />
       <input type="password" name="password1"/>
     </p>
     <p>
-      Salasana uudestaan: <br />
+      Repeat Password: <br />
       <input type="password" name="password2"/>
     </p>
-    <input type="submit" value="Luo tunnus"/>
+    <input type="submit" value="Sign up"/>
     <p>
       Have an account already? <br/>
       <a href="/login">Log in</a>
     </p>
   </form>
-</body>
 
-</html>
 {% endblock %}

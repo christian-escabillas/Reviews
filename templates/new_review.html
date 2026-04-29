@@ -1,16 +1,8 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<!DOCTYPE html>
-<html>
 
-<head>
-  <title>Review</title>
-</head>
-
-<body>
-
-  <h1>{{ category_name|capitalize }} Review</h1>
+<h1>{{ category_name|capitalize }} Review</h1>
 
   <form action="/create_review" method="post">
 
@@ -41,7 +33,4 @@
 
   </form>
 
-</body>
-
-</html>
 {% endblock %}

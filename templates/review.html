@@ -1,13 +1,8 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<!DOCTYPE html>
-<html>
-<head>
-  <title>{{ review.title }}</title>
-</head>
-<body>
-  <h1>{{ review.title }}</h1>
+
+<h1>{{ review.title }}</h1>
 
   <p>
     Item: {{ review.item_title }}
@@ -34,6 +29,4 @@
     </form>
   {% endif %}
 
-</body>
-</html>
 {% endblock %}
