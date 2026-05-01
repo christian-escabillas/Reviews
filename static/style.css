@@ -98,13 +98,24 @@ body {
     box-shadow: 0 0 0 3px black;
 }
 
-/* review-cards */
+/* review-cards in index.html */
+
+* {
+  box-sizing: border-box;
+}
+
+.home-page {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
 
 .review-card {
     background-color: white;
+    width: 100%;
     border: 2px solid black;
     border-radius: 12px;
-    margin: 30px;
+    margin-bottom: 30px;
     padding: 20px;
     max-width: 800px;
 }
@@ -118,6 +129,7 @@ body {
 
 .review-title:hover {
     transform: translateY(-1px);
+    text-decoration: underline;
 }
 
 .review-meta {
@@ -152,6 +164,25 @@ body {
     background-color: rgb(234, 166, 174);
 }
 
+.review-thoughts-preview {
+  margin: 12px 0;
+  line-height: 1.5;
+}
+
+.comments-link {
+  color: black;
+  text-decoration: none;
+}
+
+.comments-link:hover {
+  text-decoration: underline;
+}
+
+.comment-preview {
+  border-top: 1px solid #999;
+  padding: 12px 0;
+}
+
 .comment-form textarea {
     height: 60px;
     width: 180px;
@@ -173,90 +204,280 @@ body {
 /* Profile page */
 
 .profile-page {
-    display: flex;
-    min-height: calc(100vh - 90px);
-    border: 2px solid black
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
 }
 
-.profile-main {
-    flex: 2;
-    border-right: 2px solid black;
-}
-
-.profile-stats {
-    flex: 1;
-    text-align: center;
+.profile-username, .profile-reviews, .stat-box, .favorite-box {
+  background-color: #f3d7ab;
+  border: 2px solid black;
+  border-radius: 14px;
+  padding: 24px;
 }
 
 .profile-username {
-    border-bottom: 2px solid black;
-    text-align: center;
-    padding: 30px;
+  text-align: center;
+  margin-bottom: 24px;
 }
 
 .profile-username h1 {
-    margin: 0;
-    font-size: 36px;
+  margin: 0;
+  font-size: 36px;
 }
 
-.profile-reviews {
-    padding: 25px;
+.profile-reviews h2, .stat-box h2, .favorite-box h2 {
+  text-align: center;
+  margin-top: 0;
 }
 
-.profile-reviews h2 {
-    text-align: center;
-    margin-top: 0;
+.review-item {
+  padding: 16px 0;
+  border-bottom: 2px solid black;
 }
 
-.profile-page .review-card {
-    border-bottom: 1px solid black;
-    padding: 15px 0;
+.review-item a {
+  font-weight: bold;
 }
 
-.profile-page .review-card a {
-    font-size: 22px;
-    font-weight: bold;
-    text-decoration: none;
-    color: black;
+.review-item p {
+  margin: 5px 0;
 }
 
-.stats-box {
-    border-bottom: 2px solid black;
-    padding: 20px;
-    text-align: center;
-}
-
-.stats-box h2 {
-    text-align: center;
-}
-
-hr {
-    border: none;
-    border-top: 2px solid black;
+.review-item span {
+  font-size: 14px;
+  color: #333;
 }
 
 .stat-row {
-    display: flex;
-    justify-content: space-around;
-    gap: 15px;
+  display: flex;
+  gap: 16px;
 }
 
 .stat-mini {
-    border: 2px solid black;
-    border-radius: 12px;
-    padding: 15px 25px;
-    min-width: 60px;
-    text-align: center;
+  flex: 1;
+  text-align: center;
+  border: 2px solid black;
+  border-radius: 10px;
+  padding: 16px;
 }
 
 .stat-mini p {
-    margin: 5px 0;
+  margin: 6px 0 0;
 }
 
-.favorite-box {
-    border-bottom: 2px solid black;
-    padding: 20px;
-    text-align: center;
+.favorite-form {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.favorite-item {
+  text-align: center;
+  padding: 12px;
+  border-top: 2px solid black;
+}
+
+.favorite-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.favorite-select {
+  padding: 8px 12px;
+  border: 2px solid black;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.favorite-select:hover {
+  background-color: #f7ead5;
+}
+
+.favorite-select:focus {
+  outline: none;
+  border-color: #a8324a;
+}
+
+.favorite-form label {
+  font-weight: bold;
+}
+
+/* Edit page */
+
+.edit-page {
+  min-height: calc(100vh - 70px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 60px;
+}
+
+.edit-card {
+  width: 500px;
+  background-color: azure;
+  border: 2px solid black;
+  border-radius: 16px;
+  padding: 32px;
+}
+
+.edit-card h1 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 28px;
+}
+
+.edit-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.edit-card label {
+  font-weight: bold;
+}
+
+.edit-input, .edit-textarea, .edit-rating {
+  padding: 10px;
+  border: 2px solid black;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.edit-textarea {
+  min-height: 180px;
+  resize: vertical;
+}
+
+.edit-rating {
+  width: 80px;
+}
+
+.edit-button {
+  margin-top: 16px;
+  padding: 10px 16px;
+  background-color: #a8324a;
+  color: white;
+  border: 2px solid #a8324a;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.edit-button:hover {
+  background-color: #86263a;
+}
+
+/* Review Page */
+
+.review-page {
+  min-height: calc(100vh - 70px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 60px;
+}
+
+.review-card-full {
+  width: 700px;
+  background-color: #f3d7ab;
+  border: 2px solid black;
+  border-radius: 16px;
+  padding: 32px;
+}
+
+.review-card-full h1 {
+  margin-top: 0;
+  text-align: center;
+  font-size: 36px;
+}
+
+.review-card-full p {
+  font-size: 16px;
+  margin: 14px 0;
+}
+
+.review-thoughts {
+  margin-top: 24px;
+  padding: 20px;
+  background-color: #f7e4c4;
+  border: 2px solid black;
+  border-radius: 12px;
+  line-height: 1.5;
+}
+
+.review-actions {
+  margin-top: 24px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.edit-link,
+.delete-button {
+  padding: 9px 14px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.edit-link {
+  background-color: #a8324a;
+  color: white;
+  text-decoration: none;
+  border: 2px solid #a8324a;
+}
+
+.delete-button {
+  background-color: white;
+  border: 2px solid black;
+}
+
+.edit-link:hover {
+  background-color: #86263a;
+}
+
+.delete-button:hover {
+  background-color: #ffd6d6;
+}
+
+.review-comments {
+  margin-top: 32px;
+  border-top: 2px solid black;
+  padding-top: 24px;
+}
+
+.review-comments h2 {
+  margin-top: 0;
+}
+
+.comment-form textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 10px;
+  border: 2px solid black;
+  border-radius: 8px;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.comment-form button {
+  margin-top: 8px;
+}
+
+.comment-box {
+  margin-top: 18px;
+  padding: 16px;
+  background-color: #f7e4c4;
+  border: 2px solid black;
+  border-radius: 12px;
 }
 
 .content {

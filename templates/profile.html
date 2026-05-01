@@ -13,16 +13,12 @@
     <h2>{{ user.username }}'s reviews</h2>
 
     {% if reviews %}
-    <ul>
-    {% for review in reviews %}
-    <li>
-    <a href="/review/{{ review.id }}">{{ review.title }}</a><br>
-    Review on {{ review.item_title }}<br>
-    {{ review.created_at }}<br>
-    </li>
+      {% for review in reviews %}
+      <a href="/review/{{ review.id }}">{{ review.title }}</a><br>
+      Review on {{ review.item_title }}<br>
+      {{ review.created_at }}<br>
     <hr>
     {% endfor %}
-    </ul>
     
   {% else %}
 
@@ -37,17 +33,17 @@
     <h2>Statistics</h2>
     <div class="stat-row">
       <div class="stat-mini">
-        <p>▲</p>
+        <strong>▲</strong>
         <p>{{ vote_totals.upvotes_received }}</p>
       </div>
 
       <div class="stat-mini">
-        <p>▲▼</p>
+        <strong>▲▼</strong>
         <p>{{ vote_totals.score_received }}</p>
       </div>
 
       <div class="stat-mini">
-        <p>▼</p>
+        <strong>▼</strong>
         <p>{{ vote_totals.downvotes_received }}</p>
       </div>
 
@@ -62,11 +58,11 @@
   <form method="get" action="{{ url_for('profile', user_id=user.id) }}">
     <label>
       Sort by:
-      <select name="favorite_item_type">
-        <option value="movie" {% if favorite_item_type=='movie' %}selected{% endif %}>movie</option>
-        <option value="series" {% if favorite_item_type=='series' %}selected{% endif %}>series</option>
-        <option value="game" {% if favorite_item_type=='game' %}selected{% endif %}>game</option>
-        <option value="song" {% if favorite_item_type=='song' %}selected{% endif %}>song</option>
+      <select name="favorite_item_type" class="favorite-select">
+        <option value="movie" {% if favorite_item_type=='movie' %}selected{% endif %}>Movie</option>
+        <option value="series" {% if favorite_item_type=='series' %}selected{% endif %}>Series</option>
+        <option value="game" {% if favorite_item_type=='game' %}selected{% endif %}>Game</option>
+        <option value="song" {% if favorite_item_type=='song' %}selected{% endif %}>Song</option>
       </select>
     </label>
     <button type="submit" class="search-button">Sort</button>

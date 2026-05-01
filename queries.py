@@ -8,6 +8,7 @@ def get_index_reviews():
     sql = """
     SELECT r.id,
            r.title AS review_title,
+           r.thoughts,
            i.item_type,
            i.title AS item_title,
            u.username,
@@ -26,17 +27,17 @@ def get_index_reviews():
     review_list = []
     for review in reviews:
         review_dict = {
-            'id': review['id'],
-            'review_title': review['review_title'],
-            'item_type': review['item_type'],
-            'item_title': review['item_title'],
-            'username': review['username'],
-            'user_id': review['user_id'],  # reviewer’s id
-            'comment_count': review['comment_count'],
-            'created_at': review['created_at'],
-            'comments': []
-        }
-
+        'id': review['id'],
+        'review_title': review['review_title'],
+        'thoughts': review['thoughts'],
+        'item_type': review['item_type'],
+        'item_title': review['item_title'],
+        'username': review['username'],
+        'user_id': review['user_id'],
+        'comment_count': review['comment_count'],
+        'created_at': review['created_at'],
+        'comments': []
+    }
         comment_sql = """
         SELECT
             c.id AS id,

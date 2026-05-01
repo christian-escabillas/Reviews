@@ -13,14 +13,17 @@
 
   <hr>
 
+<div class="home-page">
+
   {% for review in reviews %}
   <div class="review-card">
 
   <div class="review-header">
     <a class="review-title" href="/review/{{ review.id }}">{{ review.review_title }}</a>
 
+  <p class="review-thoughts-preview">{{ review.thoughts }}</p>
+
   <p class="review-meta">
-    <a href="/review/{{ review.id }}">{{ review.review_title }}</a><br>
     {{ review.item_type|capitalize }}: {{ review.item_title }}<br>
     Reviewed by <a href="/profile/{{ review.user_id }}">{{ review.username }}</a>
     <span class="review-date"> ({{ review.created_at }})</span>
@@ -45,20 +48,19 @@
         <button type="submit" class="{{ 'active' if review.favorited else '' }}">★ {{ review.favorites }}</button>
       </form>
     </div>
-  </p>
 
     {% if session.username %}
-      <form action="/comment/{{ review.id }}" method="post">
-          <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-          <textarea name="comment" placeholder="Write a comment..." required></textarea><br>
-          <input type="submit" value="Submit Comment">
-      </form>
+    <form action="/comment/{{ review.id }}" method="post" class="comment-form">
+      <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+      <textarea name="comment" placeholder="Write a comment..." required></textarea>
+      <button type="submit">Submit Comment</button>
+    </form>
     {% endif %}
 
-      <div class="comments">
-        {% if review.comments %}
-          <h3>Comments</h3>
-          {% for comment in review.comments %}
+      {% if review.comments %}
+        {% for comment in review.comments %}
+        <div class="comments">
+          <h3><a href="/review/{{ review.id }}#comments" class="comments-link">Comments</a></h3>
 
           <hr>
             <p>User: <a href="/profile/{{ comment.user_id }}">{{ comment.username }}</a></p>
@@ -72,20 +74,18 @@
               <button type="submit" onclick="return confirm('Delete this comment?');">Delete</button>
             </form>
           {% endif %}
-          <hr>
+          </div>
           {% endfor %}
 
         {% else %}
           <p>No comments yet</p>
         {% endif %}
 
-        {% if review.comment_count > 2 %}
-          <a href="/comments/{{ review.id }}">Show All</a>
-        {% endif %}
-      </div>
   </div>
   <hr>
 
   {% endfor %}
-  
+
+</div>
+
 {% endblock %}

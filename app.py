@@ -283,17 +283,6 @@ def comment(review_id):
 
     return redirect("/")
 
-@app.route("/comments/<int:review_id>")
-def show_comments(review_id):
-
-    comments = q.get_comments_for_review(review_id)
-
-    review_title = q.get_review_title(review_id)
-    if review_title is None:
-        abort(404)
-
-    return render_template("show_comments.html", review_title=review_title, comments=comments)
-
 @app.route("/comment/<int:comment_id>/edit", methods=["GET", "POST"])
 def edit_comment(comment_id):
     comment = q.get_comment_by_id(comment_id)

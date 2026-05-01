@@ -2,30 +2,25 @@
 
 {% block content %}
 
-<h1>Edit Review</h1>
+<div class="edit-page">
+  <div class="edit-card">
+    <h1>Edit Review</h1>
 
-  <form action="/edit_review/{{ review.id }}" method="post">
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
 
-    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-    <input type="hidden" name="item_type" value="{{ category_name }}">
+      <label>Review Title:</label>
+      <input class="edit-input" type="text" name="title" value="{{ review.title }}">
 
-    <p>
-      Review Title: <br>
-      <input type="text" name="title"/>
-    </p>
+      <label>Thoughts:</label>
+      <textarea class="edit-textarea" name="thoughts">{{ review.thoughts }}</textarea>
 
-    <p>
-      Thoughts: <br>
-      <textarea name="thoughts" rows="10" cols="40"></textarea>
-    </p>
+      <label>Rating:</label>
+      <input class="edit-rating" type="number" name="rating" value="{{ review.rating }}" min="1" max="5">
 
-    <p>
-      Rating: <br>
-      <input type="number" name="rating" min="1" max="5"/>
-    </p>
-
-    <input type="submit" value="Update Review"/>
-
-  </form>
+      <button class="edit-button" type="submit">Update Review</button>
+    </form>
+  </div>
+</div>
 
 {% endblock %}
