@@ -2,39 +2,39 @@
 
 {% block content %}
 
-<h1>Log in</h1>
-  {% if session.username %}
-  <p>
-    You are logged in as {{ session.username }}
-  </p>
-  <p>
-    <a href="/logout">Log out</a>
-  </p>
-  <p>
-  <a href="/new_item">New Review</a>
-  </p>
-  {% else %}
-  <form action="/login" method="post">
-    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-    <p>
-      Username: <br />
-      <input type="text" name="username"/>
-    </p>
-    <p>
-      Password: <br />
-      <input type="password" name="password"/>
-    </p>
-    <input type="submit" value="Log in"/>
-    {% if error %}
-    <p 
-    style="color:red;">{{ error }}
-    </p>
+<div class="login-page">
+  <div class="login-card">
+
+    <h1>Log in</h1>
+    {% if session.username %}
+      <p>You are logged in as {{ session.username }}</p>
+      <p><a href="/logout">Log out</a></p>
+    <p><a href="/new_item">New Review</a></p>
+
+    {% else %}
+    <form action="/login" method="post">
+      <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+
+      <label for="username">Username:</label>
+        <input class="login-input" type="text" name="username" id="username">
+
+      <label for="password">Password:</label>
+        <input class="login-input" type="password" name="password" id="password">
+
+      <button class="login-button" type="submit">Log in</button>
+
+      {% if error %}
+      <p class="login-error">{{ error }}</p>
+      {% endif %}
+      </form>
+
+      <p class="register-link">
+        Don't have an account yet?<br>
+        <a href="/register">Sign up</a>
+      </p>
+
     {% endif %}
-    <p>
-      Don't have an account yet? <br/>
-      <a href="/register">Sign up</a>
-    </p>
-  </form>
-  {% endif %}
+  </div>
+</div>
 
 {% endblock %}

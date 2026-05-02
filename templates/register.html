@@ -2,26 +2,47 @@
 
 {% block content %}
 
-<h1>Account Creation</h1>
-  <form action="/create" method="post">
-    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-    <p>
-      Username: <br />
-      <input type="text" name="username"/>
-    </p>
-    <p>
-      Password: <br />
-      <input type="password" name="password1"/>
-    </p>
-    <p>
-      Repeat Password: <br />
-      <input type="password" name="password2"/>
-    </p>
-    <input type="submit" value="Sign up"/>
-    <p>
-      Have an account already? <br/>
-      <a href="/login">Log in</a>
-    </p>
-  </form>
+<div class="login-page">
+  <div class="login-card">
+
+    <h1>Log in</h1>
+    {% if session.username %}
+      <p>You are logged in as {{ session.username }}</p>
+      <p><a href="/logout">Log out</a></p>
+    <p><a href="/new_item">New Review</a></p>
+
+    {% else %}
+    <form action="/create" method="post">
+      <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+
+      <label for="username">Username:</label>
+      <input class="login-input" type="text" name="username" id="username">
+
+      <label for="password1">Password:</label>
+      <input class="login-input" type="password" name="password1" id="password1">
+
+      <label for="password2">Confirm password:</label>
+      <input class="login-input" type="password" name="password2" id="password2">
+
+      <button class="login-button" type="submit">Sign up</button>
+
+      {% if error %}
+        <p class="login-error">{{ error }}</p>
+      {% endif %}
+    </form>
+
+      {% if error %}
+      <p class="login-error">{{ error }}</p>
+      {% endif %}
+      </form>
+
+      <p class="register-link">
+        Already have an account?<br>
+        <a href="/login">Log in</a>
+      </p>
+
+    {% endif %}
+  </div>
+</div>
 
 {% endblock %}
