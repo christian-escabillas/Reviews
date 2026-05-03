@@ -15,8 +15,10 @@ Sovelluksen toiminnot
 
 1. Kloonaa repositorio:
 
+```
    git clone https://github.com/OMA-KÄYTTÄJÄ/reviews.git
    cd reviews
+```
 
 2. Luo virtuaaliympäristö:
 
