@@ -4,12 +4,12 @@ Sovelluksen toiminnot
 
 - Käyttäjä pystyy luomaan tunnuksen ja kirjautumaan sisään sovellukseen.
 - Käyttäjä pystyy lisäämään, muokkaamaan ja poistamaan arvosteluja.
-- Käyttäjä pystyy luoda Arvosteluja eri kategorioihin (movie, game, series, song)
+- Käyttäjä pystyy luomaan arvosteluja eri kategorioihin (movie, game, series, song)
 - Käyttäjä näkee sovellukseen lisätyt arvostelut.
-- Käyttäjä pystyy etsimään ilmoituksia hakusanalla.
+- Käyttäjä pystyy etsimään arvosteluja hakusanalla.
 - Tykkää/Ei tykkää- ja suosikki-nappi jokaisessa arvostelussa.
 - Käyttäjä näkee sekä itse lisäämänsä että muiden käyttäjien lisäämät arvostelut ja kommentit.
-- Sovelluksessa on käyttäjäsivut, jotka näyttävät tilastoja, käyttäjän lisäämät ja suosikki arvostelut.
+- Sovelluksessa on käyttäjäsivut, jotka näyttävät tilastoja, käyttäjän lisäämät ja suosikkiarvostelut.
 
 ## Sovelluksen asennus
 
