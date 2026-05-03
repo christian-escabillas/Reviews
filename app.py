@@ -425,25 +425,31 @@ def create():
     password2 = request.form["password2"]
 
     if not username or len(username) < 3:
-        return "Username must be at least 3 characters long"
+        session["csrf_token"] = secrets.token_hex(16)
+        return render_template("register.html", error="Username must be at least 3 characters long")
 
     if len(username) > 20:
-        return "Username too long"
+        session["csrf_token"] = secrets.token_hex(16)
+        return render_template("register.html", error="Username too long")
 
     if not username.isalnum():
-        return "Username can only contain letters and numbers"
+        session["csrf_token"] = secrets.token_hex(16)
+        return render_template("register.html", error="Username can only contain letters and numbers")
 
     if password1 != password2:
-        return "ERROR: Passwords don not match"
+        session["csrf_token"] = secrets.token_hex(16)
+        return render_template("register.html", error="Passwords do not match")
+
     password_hash = generate_password_hash(password1, method="pbkdf2:sha256")
 
     try:
         sql = "INSERT INTO users (username, username_lower, password_hash) VALUES (?, ?, ?)"
         db.execute(sql, [username, username_lower, password_hash])
     except sqlite3.IntegrityError:
-        return "ERROR: Username already in use"
+        session["csrf_token"] = secrets.token_hex(16)
+        return render_template("register.html", error="Username already in use")
 
-    return render_template("login.html")
+    return redirect("/login")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
