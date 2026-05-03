@@ -9,7 +9,7 @@ Sovelluksen toiminnot
 - Käyttäjä pystyy etsimään ilmoituksia hakusanalla.
 - Like/Dislike ja Favorite nappi jokaisessa arvosteluissa.
 - Käyttäjä näkee sekä itse lisäämänsä että muiden käyttäjien lisäämät arvostelut ja kommentit.
-- Sovelluksessa on käyttäjäsivut, jotka näyttävät tilastoja, käyttäjän lisäämät ilmoitukset ja käyttäjän suosikki arvostelut.
+- Sovelluksessa on käyttäjäsivut, jotka näyttävät tilastoja, käyttäjän lisäämät ja suosikki arvostelut.
 
 ## Sovelluksen asennus
 
