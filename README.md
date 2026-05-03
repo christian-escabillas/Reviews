@@ -16,7 +16,7 @@ Sovelluksen toiminnot
 1. Kloonaa repositorio:
 
 ```
-   git clone https://github.com/OMA-KÄYTTÄJÄ/reviews.git
+   git clone https://github.com/christian-escabillas/reviews.git
    cd reviews
 ```
 
