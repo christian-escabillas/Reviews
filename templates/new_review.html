@@ -2,35 +2,31 @@
 
 {% block content %}
 
-<h1>{{ category_name|capitalize }} Review</h1>
+<div class="edit-page">
+  <div class="edit-card">
 
-  <form action="/create_review" method="post">
+    <h1>{{ category_name|capitalize }} Review</h1>
 
-    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-    <input type="hidden" name="item_type" value="{{ category_name }}">
+    <form action="/create_review" method="post">
+      <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+      <input type="hidden" name="item_type" value="{{ category_name }}">
 
-    <p>
-      {{ category_name|capitalize }} title: <br>
-      <input type="text" name="item_title"/>
-    </p>
+      <label>{{ category_name|capitalize }} title:</label>
+      <input class="edit-input" type="text" name="item_title">
 
-    <p>
-      Review Title: <br>
-      <input type="text" name="title"/>
-    </p>
+      <label>Review Title:</label>
+      <input class="edit-input" type="text" name="title">
 
-    <p>
-      Thoughts: <br>
-      <textarea name="thoughts" rows="10" cols="40"></textarea>
-    </p>
+      <label>Thoughts:</label>
+      <textarea class="edit-textarea" name="thoughts"></textarea>
 
-    <p>
-      Rating: <br>
-      <input type="number" name="rating" min="1" max="5"/>
-    </p>
+      <label>Rating:</label>
+      <input class="edit-rating" type="number" name="rating" min="1" max="5">
 
-    <input type="submit" value="Submit review"/>
+      <button class="edit-button" type="submit">Submit Review</button>
+    </form>
 
-  </form>
+  </div>
+</div>
 
 {% endblock %}

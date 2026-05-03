@@ -21,13 +21,22 @@
   <div class="review-header">
     <a class="review-title" href="/review/{{ review.id }}">{{ review.review_title }}</a>
 
-  <p class="review-thoughts-preview">{{ review.thoughts }}</p>
+  <p class="review-thoughts-preview">{{ review.thoughts | show_lines }}</p>
 
   <p class="review-meta">
     {{ review.item_type|capitalize }}: {{ review.item_title }}<br>
     Reviewed by <a href="/profile/{{ review.user_id }}">{{ review.username }}</a>
     <span class="review-date"> ({{ review.created_at }})</span>
   </p>
+
+  <div class="review-actions">
+    {% if session.get("user_id") == review.user_id %}
+      <a class="edit-link" href="/edit_review/{{ review.id }}">Edit Review</a>
+
+      <a href="{{ url_for('confirm_delete_review', review_id=review.id) }}" class="delete-btn">Delete Review</a>
+    {% endif %}
+  </div>
+  
     </div>
   
     <div class="review-interactions">
@@ -68,18 +77,19 @@
           <hr>
 
           {% if session.get('user_id') == comment.user_id %}
-            <a href="{{ url_for('edit_comment', comment_id=comment.id) }}">Edit</a>
-            <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="post" style="display:inline;">
-              <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
-              <button type="submit" onclick="return confirm('Delete this comment?');">Delete</button>
-            </form>
+            <div class="comment-actions">
+
+              <a href="{{ url_for('edit_comment', comment_id=comment.id) }}"class="edit-btn">Edit</a>
+              <a href="{{ url_for('confirm_delete_comment', comment_id=comment.id) }}" class="delete-btn">Delete</a>
+            </div>
+
           {% endif %}
           </div>
-          {% endfor %}
+        {% endfor %}
 
-        {% else %}
-          <p>No comments yet</p>
-        {% endif %}
+      {% else %}
+        <p>No comments yet</p>
+      {% endif %}
 
   </div>
   <hr>

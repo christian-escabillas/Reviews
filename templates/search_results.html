@@ -2,10 +2,13 @@
 
 {% block content %}
 
-<h1>Search Results</h1>
+<div class="home-page">
+
+  <h1>Search Results</h1>
 
   <form action="/search" method="get">
     <input type="hidden" name="q" value="{{ query|e }}">
+
     <label>
       Sort by category:
       <select name="item_type">
@@ -21,23 +24,26 @@
   </form>
 
   {% if results %}
-    <hr>
 
     {% for row in results %}
-    <p>
-      Review: <a href="/review/{{ row.review_id }}"> {{ row.review_title }}</a><br>
-      Review by {{ row.review_username }}<br>
-      Item: {{ row.item_title }}<br>
-      Type: {{ row.item_type|capitalize }}<br>
+      <div class="review-card">
 
-    </p>
-    <hr>
+        <div class="review-header">
+          <a class="review-title" href="/review/{{ row.review_id }}">{{ row.review_title }}</a>
+
+          <p class="review-meta">
+            Reviewed by <a href="/profile/{{ row.user_id }}">{{ row.review_username }}</a><br>
+            {{ row.item_type|capitalize }}: {{ row.item_title }}
+          </p>
+        </div>
+
+      </div>
     {% endfor %}
 
-    {% else %}
-    <p>
-      No results
-    </p>
-    {% endif %}
+  {% else %}
+    <p>No results</p>
+  {% endif %}
+
+</div>
 
 {% endblock %}

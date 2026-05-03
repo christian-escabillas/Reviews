@@ -75,10 +75,11 @@ def search_items_and_reviews(item_type: str, query: str):
         r.id AS review_id,
         r.title AS review_title,
         r.rating,
-        u.username AS review_username
+        u.username AS review_username,
+        u.id AS user_id
     FROM item i
-    LEFT JOIN review r ON r.item_id = i.id
-    LEFT JOIN users u ON r.user_id = u.id
+    JOIN review r ON r.item_id = i.id
+    JOIN users u ON r.user_id = u.id
     WHERE i.item_type = ?
       AND (
         LOWER(TRIM(i.title)) LIKE LOWER(?)
@@ -98,10 +99,11 @@ def search_items_and_reviews_all(query: str):
            r.title AS review_title,
            r.rating,
            u.username AS review_username,
-           r.created_at
+           r.created_at,
+           u.id AS user_id
     FROM item i
-    LEFT JOIN review r ON r.item_id = i.id
-    LEFT JOIN users u ON r.user_id = u.id
+    JOIN review r ON r.item_id = i.id
+    JOIN users u ON r.user_id = u.id
     WHERE LOWER(TRIM(i.title)) LIKE LOWER(?)
        OR LOWER(COALESCE(TRIM(r.title), '')) LIKE LOWER(?)
     ORDER BY r.created_at DESC, i.title, r.id
@@ -111,6 +113,7 @@ def search_items_and_reviews_all(query: str):
 
 
 # Items
+
 def create_item(title: str, item_type: str):
     sql = "INSERT INTO item (title, item_type) VALUES (?, ?)"
     db.execute(sql, [title, item_type])
@@ -125,6 +128,7 @@ def get_item_id_by_title_and_type(title: str, item_type: str):
     return rows[0]["id"] if rows else None
 
 # Reviews
+
 def create_review(title: str, thoughts: str, rating: int, user_id: int, item_id: int, created_at: Optional[str] = None):
     if created_at is None:
         created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -331,6 +335,30 @@ def create_user(username: str, password: str):
     """
 
     db.execute(sql, [username, username_lower, password_hash])
+
+def get_user_favorited_reviews(user_id: int, item_type: Optional[str] = None):
+    base_sql = """
+      SELECT
+        r.id AS review_id,
+        r.title AS review_title,
+        r.created_at,
+        r.rating,
+        i.title AS item_title,
+        i.item_type,
+        u.username AS author_username,
+        u.id AS author_id
+      FROM review_favorites rf
+      JOIN review r ON r.id = rf.review_id
+      JOIN item i ON i.id = r.item_id
+      JOIN users u ON u.id = r.user_id
+      WHERE rf.user_id = ?
+    """
+    params = [user_id]
+    if item_type and item_type in ("movie", "series", "game", "song"):
+        base_sql += " AND i.item_type = ?"
+        params.append(item_type)
+    base_sql += " ORDER BY r.created_at DESC"
+    return db.query(base_sql, params)
 
 def get_user_by_username(username: str):
     sql = "SELECT id, password_hash FROM users WHERE username = ?"

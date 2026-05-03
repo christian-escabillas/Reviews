@@ -21,30 +21,6 @@ CREATE TABLE review (
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE movie (
-    id INTEGER PRIMARY KEY,
-    movie_title TEXT,
-    release_year INTEGER
-);
-
-CREATE TABLE series (
-    id INTEGER PRIMARY KEY,
-    series_title TEXT,
-    release_year INTEGER
-);
-
-CREATE TABLE game (
-    id INTEGER PRIMARY KEY,
-    game_name TEXT,
-    release_year INTEGER
-);
-
-CREATE TABLE song (
-    id INTEGER PRIMARY KEY,
-    song_title TEXT,
-    singer TEXT
-);
-
 CREATE TABLE comments (
     id INTEGER PRIMARY KEY,
     review_id INTEGER REFERENCES review,

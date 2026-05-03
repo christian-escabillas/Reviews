@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="edit-page">
+  <div class="edit-card">
+
+    <h2>Delete comment?</h2>
+
+    <p>{{ comment.comment }}</p>
+
+    <form method="post" action="{{ url_for('delete_comment', comment_id=comment.id) }}">
+
+        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+        <input type="hidden" name="next" value="{{ url_for('show_review', review_id=comment.review_id) }}">
+
+      <button type="submit" class="delete-btn">Yes, delete</button>
+    </form>
+
+    <br>
+
+    <a href="{{ url_for('show_review', review_id=comment.review_id) }}">Cancel</a>
+
+  </div>
+</div>
+
+{% endblock %}

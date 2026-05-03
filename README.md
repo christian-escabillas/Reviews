@@ -1,43 +1,60 @@
-# Reviews
+# Review App
 
-Sovelluksen perusvaatimukset ovat:
+Sovelluksen toiminnot
 
-- Käyttäjä pystyy luomaan tunnuksen ja kirjautumaan sisään sovellukseen. (Done)
-- Käyttäjä pystyy lisäämään sovellukseen arvosteluja. Lisäksi käyttäjä pystyy muokkaamaan ja poistamaan lisäämiään arvoteluja. (Done)
-- Käyttäjä näkee sovellukseen lisätyt arvostelut. (Done)
-- Käyttäjä näkee sekä itse lisäämänsä että muiden käyttäjien lisäämät arvostelut ja kommentit. (Done)
-- Käyttäjä pystyy etsimään tietokohteita hakusanalla tai muulla perusteella. (Done)
-- Käyttäjä pystyy hakemaan sekä itse lisäämiään että muiden käyttäjien lisäämiä arvosteluja. (Done)
-- Sovelluksessa on käyttäjäsivut, jotka näyttävät jokaisesta käyttäjästä tilastoja ja käyttäjän lisäämät arvostelut. (Half done)
-- Käyttäjä pystyy valitsemaan tietokohteelle yhden tai useamman luokittelun. Mahdolliset luokat ovat tietokannassa. (Done)
-- Sovelluksessa on pääasiallisen tietokohteen lisäksi toissijainen tietokohde, joka täydentää pääasiallista tietokohdetta.
-- Käyttäjä pystyy lisäämään toissijaisia tietokohteita omiin ja muiden käyttäjien tietokohteisiin liittyen.
+- Käyttäjä pystyy luomaan tunnuksen ja kirjautumaan sisään sovellukseen.
+- Käyttäjä pystyy lisäämään, muokkaamaan ja poistamaan arvosteluja.
+- Käyttäjä pystyy luoda Arvosteluja eri kategorioihin (movie, game, series, song)
+- Käyttäjä näkee sovellukseen lisätyt arvostelut.
+- Käyttäjä pystyy etsimään ilmoituksia hakusanalla.
+- Like/Dislike ja Favorite nappi jokaisessa arvosteluissa.
+- Käyttäjä näkee sekä itse lisäämänsä että muiden käyttäjien lisäämät arvostelut ja kommentit.
+- Sovelluksessa on käyttäjäsivut, jotka näyttävät tilastoja, käyttäjän lisäämät ilmoitukset ja käyttäjän suosikki arvostelut.
 
 ## Sovelluksen asennus
 
-```
-pip install flask
-```
+1. Kloonaa repositorio:
 
-Luo tietokanna taulut ja lisää alkutiedot:
+   git clone https://github.com/OMA-KÄYTTÄJÄ/reviews.git
+   cd reviews
 
-```
-sqlite3 database.db < schema.sql
-```
-
-Käynnistys:
+2. Luo virtuaaliympäristö:
 
 ```
-flask run
+   python3 -m venv venv
+   source venv/bin/activate
 ```
 
-Avaa selaimessa:
-http://127.0.0.1:5000/
+3. Asenna Flask:
 
-## Rakenne
-- 'app.py' - pääsovellus
-- 'templates/' HTML-tiedostot
-- schema.sql - tietokannan rakenne
+```
+   pip install flask
+```
 
+4. Luo tietokanta:
+
+```
+   sqlite3 database.db < schema.sql
+```
+
+5. Käynnistä sovellus:
+
+```
+   flask run
+```
+
+6. Avaa selaimessa:
+
+```
+   http://127.0.0.1:5000
+```
+
+## Projektin rakenne
+
+- app.py – Flask-sovellus
+- queries.py – tietokantakyselyt
+- templates/ – HTML-sivut
+- static/ – CSS ja kuvat
+- schema.sql – tietokannan rakenne
 
 

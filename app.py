@@ -7,9 +7,16 @@ import config
 import db
 import queries as q  
 import secrets
+import markupsafe
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
+
+@app.template_filter()
+def show_lines(content):
+    content = str(markupsafe.escape(content))
+    content = content.replace("\n", "<br />")
+    return markupsafe.Markup(content)
 
 def ensure_csrf_token():
     if "csrf_token" not in session:
@@ -90,6 +97,8 @@ def create_review():
     rating = request.form["rating"]
     item_title = request.form["item_title"].strip()
     item_type = request.form["item_type"].strip().lower()
+    if "user_id" not in session:
+        return redirect("/login")
     user_id = session["user_id"]
 
     if item_type == "music":
@@ -217,11 +226,36 @@ def search():
 @app.route("/review/<int:review_id>")
 def show_review(review_id):
     review = q.get_review_by_id(review_id)
+
     if not review:
         abort(404)
 
+    review = dict(review)
+
     comments = q.get_comments_for_review(review_id)
-    return render_template("review.html", review=review)
+
+    vote_counts = q.get_review_vote_counts(review_id)
+    fav_count = q.get_review_favorite_count(review_id)
+
+    review["upvotes"] = vote_counts["upvotes"]
+    review["downvotes"] = vote_counts["downvotes"]
+    review["favorites"] = fav_count["favorites"]
+
+    if "user_id" in session:
+        user_id = session["user_id"]
+
+        existing_vote = q.get_review_vote(user_id, review_id)
+        if existing_vote:
+            review["user_vote"] = existing_vote["value"]
+        else:
+            review["user_vote"] = None
+
+        review["favorited"] = q.is_favorited(user_id, review_id)
+    else:
+        review["user_vote"] = None
+        review["favorited"] = False
+
+    return render_template("review.html", review=review, comments=comments)
 
 # Editing and removing reviews
 
@@ -265,11 +299,24 @@ def delete_review(review_id):
     q.delete_review(review_id)
     return redirect("/")
 
+@app.route("/review/<int:review_id>/confirm_delete")
+def confirm_delete_review(review_id):
+    review = q.get_review_by_id(review_id)
+
+    if not review:
+        abort(404)
+
+    if review["user_id"] != session.get("user_id"):
+        abort(403)
+
+    return render_template("confirm_delete_review.html", review=review)
+
 # Comments
 
 @app.route("/comment/<int:review_id>", methods=["POST"])
 def comment(review_id):
     check_csrf()
+
     if "user_id" not in session:
         return redirect("/login") 
 
@@ -281,7 +328,7 @@ def comment(review_id):
 
     q.create_comment(review_id, user_id, comment_text)
 
-    return redirect("/")
+    return redirect(f"/review/{review_id}#comments")
 
 @app.route("/comment/<int:comment_id>/edit", methods=["GET", "POST"])
 def edit_comment(comment_id):
@@ -307,12 +354,32 @@ def edit_comment(comment_id):
 def delete_comment(comment_id):
     check_csrf()
     comment = q.get_comment_by_id(comment_id)
+
     if not comment:
         abort(404)
+
     if comment["user_id"] != session.get("user_id"):
         abort(403)
+
     q.delete_comment_by_id(comment_id)
+
+    next_page = request.form.get("next")
+    if next_page:
+        return redirect(next_page)
+
     return redirect(f"/review/{comment['review_id']}")
+
+@app.route("/comment/<int:comment_id>/confirm_delete")
+def confirm_delete_comment(comment_id):
+    comment = q.get_comment_by_id(comment_id)
+
+    if not comment:
+        abort(404)
+
+    if comment["user_id"] != session.get("user_id"):
+        abort(403)
+
+    return render_template("confirm_delete_comment.html", comment=comment)
 
 # Profile page
 
@@ -323,14 +390,14 @@ def profile(user_id):
         abort(404)
 
     favorite_item_type = (request.args.get("favorite_item_type") or "movie").strip().lower()
-    allowed = {"movie", "series", "game", "song"}
+    allowed = {"all", "movie", "series", "game", "song"}
     if favorite_item_type not in allowed:
-        favorite_item_type = "movie"
+        favorite_item_type = "all"
 
     user_reviews = q.get_reviews_by_user_id(user_id)
     vote_totals = q.get_user_vote_totals(user_id)
 
-    favorite_items = q.get_user_reviewed_items_by_type(user_id, favorite_item_type)
+    favorite_reviews = q.get_user_favorited_reviews(user_id, None if favorite_item_type == "all" else favorite_item_type)
 
     return render_template(
         "profile.html",
@@ -338,9 +405,8 @@ def profile(user_id):
         reviews=user_reviews,
         vote_totals=vote_totals,
         favorite_item_type=favorite_item_type,
-        favorite_items=favorite_items,
-    )
-
+        favorite_reviews=favorite_reviews,
+        )
 
 @app.route("/register")
 def register():
@@ -381,9 +447,11 @@ def create():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
+        ensure_csrf_token()
         return render_template("login.html")
 
     if request.method == "POST":
+        check_csrf()
         username = request.form["username"]
         username_lower = username.lower()
         password = request.form["password"]

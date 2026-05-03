@@ -59,6 +59,7 @@
     <label>
       Sort by:
       <select name="favorite_item_type" class="favorite-select">
+        <option value="all" {% if favorite_item_type=='all' %}selected{% endif %}>All</option>
         <option value="movie" {% if favorite_item_type=='movie' %}selected{% endif %}>Movie</option>
         <option value="series" {% if favorite_item_type=='series' %}selected{% endif %}>Series</option>
         <option value="game" {% if favorite_item_type=='game' %}selected{% endif %}>Game</option>
@@ -68,16 +69,22 @@
     <button type="submit" class="search-button">Sort</button>
   </form>
 <hr>
-  <h4>Favorite {{ favorite_item_type|capitalize }}</h4>
+  <h4>Favorited Reviews{% if favorite_item_type != 'all' %} ({{ favorite_item_type|capitalize }}){% endif %}</h4>
 
-  {% if favorite_items %}
-    {% for row in favorite_items %}
-    <li>{{ row.item_title }}</li>
-    {% endfor %}
-  
-    {% else %}
-    <p>This user has no favorites</p>
-    {% endif %}
+  {% if favorite_reviews %}
+    <ul>
+      {% for row in favorite_reviews %}
+        <li>
+          <a href="/review/{{ row.review_id }}">{{ row.review_title }}</a>
+          — {{ row.item_type|capitalize }}: {{ row.item_title }}
+          by <a href="/profile/{{ row.author_id }}">{{ row.author_username }}</a>
+          ({{ row.created_at }})
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No favorited reviews.</p>
+  {% endif %}
 
   </section>
 </aside>
