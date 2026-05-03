@@ -9,7 +9,7 @@
     {% if session.username %}
       <p>You are logged in as {{ session.username }}</p>
       <p><a href="/logout">Log out</a></p>
-    <p><a href="/new_item">New Review</a></p>
+    <p><a href="/choose_category">New Review</a></p>
 
     {% else %}
     <form action="/create" method="post">

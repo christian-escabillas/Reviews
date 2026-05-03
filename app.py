@@ -49,10 +49,6 @@ def index():
 
     return render_template("index.html", reviews=result)
 
-@app.route("/new_item")
-def new_item():
-    return render_template("new_item.html")
-
 @app.route("/choose_category")
 def choose_category():
     return render_template("choose_category.html")
@@ -81,6 +77,11 @@ def create_item():
 
 @app.route("/new_review/<category_name>")
 def new_review(category_name):
+    if "user_id" not in session:
+        return redirect("/login")
+
+    ensure_csrf_token()
+
     allowed_categories = ["movie", "game", "series", "song"]
 
     if category_name not in allowed_categories:
