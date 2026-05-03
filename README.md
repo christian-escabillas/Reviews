@@ -7,7 +7,7 @@ Sovelluksen toiminnot
 - Käyttäjä pystyy luoda Arvosteluja eri kategorioihin (movie, game, series, song)
 - Käyttäjä näkee sovellukseen lisätyt arvostelut.
 - Käyttäjä pystyy etsimään ilmoituksia hakusanalla.
-- Like/Dislike ja Favorite nappi jokaisessa arvosteluissa.
+- Tykkää/Ei tykkää- ja suosikki-nappi jokaisessa arvostelussa.
 - Käyttäjä näkee sekä itse lisäämänsä että muiden käyttäjien lisäämät arvostelut ja kommentit.
 - Sovelluksessa on käyttäjäsivut, jotka näyttävät tilastoja, käyttäjän lisäämät ja suosikki arvostelut.
 
